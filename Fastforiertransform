@@ -5,29 +5,43 @@ load('Messdaten.mat');
 time_frq_el_intern = frq_el_intern(:, 2);
 frq_el_intern_data = frq_el_intern(:, 1);
 
+% Define the time window
+timeWindowStart = 254.84;
+timeWindowEnd = 254.86;
+
+% Find indices corresponding to the time window
+indices = find(time_frq_el_intern >= timeWindowStart & time_frq_el_intern <= timeWindowEnd);
+
+% Extract data within the time window
+timeWindowData = frq_el_intern_data(indices);
+
 % Define the sampling frequency (inverse of the average time difference)
 Fs = 1 / mean(diff(time_frq_el_intern));
 
-% Perform FFT on the frequency data for each dataset
-N = length(frq_el_intern_data);
-Y = fft(frq_el_intern_data, N);
+% Perform FFT on the frequency data within the time window
+N = length(timeWindowData);
+Y = fft(timeWindowData, N);
 frequencies = (0:N-1) * Fs / N;
 
-% Plot the FFT results for each dataset
+% Plot the original frequency data within the time window
 figure;
-subplot(size(frq_el_intern_data, 2) + 1, 1, 1);
+subplot(2, 1, 1);
 plot(time_frq_el_intern, frq_el_intern_data, 'LineWidth', 1.5);
 title('Frequency Data Over Time');
 xlabel('Time (s)');
 ylabel('Frequency (Hz)');
 
-for datasetIndex = 1:size(frq_el_intern_data, 2)
-    subplot(size(frq_el_intern_data, 2) + 1, 1, datasetIndex + 1);
-    plot(frequencies, abs(Y(:, datasetIndex)), 'LineWidth', 1.5);
-    title(['FFT Results - Dataset ' num2str(datasetIndex)]);
-    xlabel('Frequency (Hz)');
-    ylabel('Amplitude');
-end
+% Highlight the time window
+hold on;
+plot([timeWindowStart, timeWindowEnd], [0, 0], 'r', 'LineWidth', 2);
+hold off;
+
+% Plot the FFT results within the time window
+subplot(2, 1, 2);
+plot(frequencies, abs(Y), 'LineWidth', 1.5);
+title('FFT Results Within Time Window');
+xlabel('Frequency (Hz)');
+ylabel('Amplitude');
 
 % Adjust subplot layout
 subplots = get(gcf, 'children');
