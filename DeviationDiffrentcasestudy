@@ -1,0 +1,68 @@
+% Load data from Messdaten.mat
+load('Messdaten.mat');
+
+% Extract data within the specified time window for each Drehzahl plateau
+% Replace these values with the actual start and end times of the plateaus
+plateau1StartTime = 100;  % Replace with actual start time
+plateau1EndTime = 150;    % Replace with actual end time
+
+plateau2StartTime = 200;  % Replace with actual start time
+plateau2EndTime = 250;    % Replace with actual end time
+
+% Extract data for each plateau
+plateau1Data = n_mech_extern(n_mech_extern(:, 2) >= plateau1StartTime & n_mech_extern(:, 2) <= plateau1EndTime, :);
+plateau2Data = n_mech_extern(n_mech_extern(:, 2) >= plateau2StartTime & n_mech_extern(:, 2) <= plateau2EndTime, :);
+
+% Extract Elektrische Rotorfrequenz data
+time_frq_el_intern = frq_el_intern(:, 2);
+frq_el_intern_data = frq_el_intern(:, 1);
+
+% Initialize variables for calculated internal Drehzahl and deviation
+internalDrehzahlCase1 = zeros(size(time_frq_el_intern));
+internalDrehzahlCase2 = zeros(size(time_frq_el_intern));
+internalDrehzahlCase3 = zeros(size(time_frq_el_intern));
+deviationCase1 = zeros(size(time_frq_el_intern));
+deviationCase2 = zeros(size(time_frq_el_intern));
+deviationCase3 = zeros(size(time_frq_el_intern));
+
+% Calculate internal Drehzahl based on different cases
+internalDrehzahlCase1 = 60 * frq_el_intern_data / 4;  % Np = 4 for Case 1
+internalDrehzahlCase2 = 60 * frq_el_intern_data / 6;  % Np = 6 for Case 2
+internalDrehzahlCase3 = 60 * frq_el_intern_data / 8;  % Np = 8 for Case 3
+
+% Interpolate the calculated internal Drehzahl to match the time points of n_mech_extern
+internalDrehzahlInterpolatedCase1 = interp1(time_frq_el_intern, internalDrehzahlCase1, n_mech_extern(:, 2), 'linear', 'extrap');
+internalDrehzahlInterpolatedCase2 = interp1(time_frq_el_intern, internalDrehzahlCase2, n_mech_extern(:, 2), 'linear', 'extrap');
+internalDrehzahlInterpolatedCase3 = interp1(time_frq_el_intern, internalDrehzahlCase3, n_mech_extern(:, 2), 'linear', 'extrap');
+
+% Calculate deviation for each case
+deviationCase1 = abs(n_mech_extern(:, 1) - internalDrehzahlInterpolatedCase1);
+deviationCase2 = abs(n_mech_extern(:, 1) - internalDrehzahlInterpolatedCase2);
+deviationCase3 = abs(n_mech_extern(:, 1) - internalDrehzahlInterpolatedCase3);
+
+% Plot the graph
+figure;
+
+subplot(3,1,1);
+plot(n_mech_extern(:, 2), deviationCase1, 'DisplayName', 'Deviation Case 1');
+xlabel('Zeit in s');
+ylabel('Deviation (RPM)');
+title('Deviation between External and Internal Speeds (Np = 4)');
+legend;
+grid on;
+
+subplot(3,1,2);
+plot(n_mech_extern(:, 2), deviationCase2, 'DisplayName', 'Deviation Case 2');
+xlabel('Zeit in s');
+ylabel('Deviation (RPM)');
+title('Deviation between External and Internal Speeds (Np = 6)');
+legend;
+grid on;
+
+subplot(3,1,3);
+plot(n_mech_extern(:, 2), deviationCase3, 'DisplayName', 'Deviation Case 3');
+xlabel('Zeit in s');
+ylabel('Deviation (RPM)');
+title('Deviation between External and Internal Speeds (Np = 8)');
+legend;
+grid on;
