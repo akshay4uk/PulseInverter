@@ -1,0 +1,61 @@
+% Load data from Messdaten.mat
+load('Messdaten.mat');
+
+% Extract Elektrische Rotorfrequenz data
+time_frq_el_intern = frq_el_intern(:, 2);
+frq_el_intern_data = frq_el_intern(:, 1);
+
+% Define the sampling frequency (inverse of the average time difference)
+Fs = 1 / mean(diff(time_frq_el_intern));
+
+% Perform FFT on the frequency data
+N = length(frq_el_intern_data);
+Y = fft(frq_el_intern_data, N);
+frequencies = (0:N-1) * Fs / N;
+
+% Find the peak amplitude and its corresponding frequency (fundamental frequency)
+[maxAmplitude, fundamentalFrequencyIndex] = max(abs(Y));
+fundamentalFrequency = frequencies(fundamentalFrequencyIndex);
+
+% Define the number of harmonics to analyze
+numHarmonics = 5;
+
+% Initialize variables for harmonic analysis
+harmonicFrequencies = zeros(1, numHarmonics);
+harmonicAmplitudes = zeros(1, numHarmonics);
+harmonicPhases = zeros(1, numHarmonics);
+
+% Analyze the first 'numHarmonics' harmonics
+for harmonicIndex = 1:numHarmonics
+    % Calculate the frequency and amplitude of the harmonic
+    harmonicFrequencies(harmonicIndex) = fundamentalFrequency * harmonicIndex;
+    harmonicAmplitudes(harmonicIndex) = abs(Y(fundamentalFrequencyIndex * harmonicIndex + 1));
+    
+    % Calculate the phase of the harmonic
+    harmonicPhases(harmonicIndex) = angle(Y(fundamentalFrequencyIndex * harmonicIndex + 1));
+end
+
+% Display the results
+disp('Harmonic Analysis Results:');
+disp(['Fundamental Frequency: ' num2str(fundamentalFrequency) ' Hz']);
+disp(['Fundamental Amplitude: ' num2str(maxAmplitude)]);
+disp('Harmonic Frequencies (Hz):');
+disp(harmonicFrequencies);
+disp('Harmonic Amplitudes:');
+disp(harmonicAmplitudes);
+disp('Harmonic Phases (radians):');
+disp(harmonicPhases);
+
+% Plot the harmonic components
+figure;
+subplot(2,1,1);
+stem(harmonicFrequencies, harmonicAmplitudes, 'Marker', 'o');
+title('Harmonic Amplitudes');
+xlabel('Frequency (Hz)');
+ylabel('Amplitude');
+
+subplot(2,1,2);
+stem(harmonicFrequencies, harmonicPhases, 'Marker', 'o');
+title('Harmonic Phases');
+xlabel('Frequency (Hz)');
+ylabel('Phase (radians)');
