@@ -19,9 +19,7 @@ timeWindowData = frq_el_intern_data(indices);
 Fs = 1 / mean(diff(time_frq_el_intern));
 
 % Perform FFT on the frequency data within the time window
-%N = length(timeWindowData);
-
-N=1000;
+N = length(timeWindowData);
 Y = fft(timeWindowData, N);
 frequencies = (0:N-1) * Fs / N;
 
@@ -44,6 +42,15 @@ plot(frequencies, abs(Y), 'LineWidth', 1.5);
 title('FFT Results Within Time Window');
 xlabel('Frequency (Hz)');
 ylabel('Amplitude');
+
+% Find peaks in the FFT plot
+[peak_amplitudes, peak_frequencies] = findpeaks(abs(Y), frequencies);
+
+% Display peak frequencies and amplitudes
+disp('Peak Frequencies (Hz):');
+disp(peak_frequencies);
+disp('Peak Amplitudes:');
+disp(peak_amplitudes);
 
 % Adjust subplot layout
 subplots = get(gcf, 'children');
