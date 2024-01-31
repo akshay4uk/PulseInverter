@@ -45,9 +45,9 @@ hold on;
 plot([timeWindowStart, timeWindowEnd], [0, 0], 'r', 'LineWidth', 2);
 hold off;
 
-% Plot the FFT results within the time window
+% Plot the FFT results within the time window using stem
 subplot(3, 1, 2);
-plot(frequencies, abs(Y), 'LineWidth', 1.5);
+stem(frequencies, abs(Y), 'LineWidth', 1.5);
 title('FFT Results Within Time Window');
 xlabel('Frequency (Hz)');
 ylabel('Amplitude');
