@@ -6,24 +6,20 @@ time_frq_el_intern = frq_el_intern(:, 2);
 frq_el_intern_data = frq_el_intern(:, 1);
 
 % Define the time window
-timeWindowStart = 100;
-timeWindowEnd = 150;
+timeWindowStart = 0.1;
+timeWindowEnd = 0.2;
 
 % Find indices corresponding to the time window
-start_indices = find(time_frq_el_intern >= timeWindowStart, 1);
-end_indices = find(time_frq_el_intern <= timeWindowEnd, 1, 'last');
-
-time_frq_el_intern = time_frq_el_intern(start_indices:end_indices);
-frq_el_intern_data = frq_el_intern_data(start_indices:end_indices);
+indices = find(time_frq_el_intern >= timeWindowStart & time_frq_el_intern <= timeWindowEnd);
 
 % Extract data within the time window
-timeWindowData = frq_el_intern_data;
+timeWindowData = frq_el_intern_data(indices);
 
-% Define the sampling frequency and N value within the time window
+% Define the sampling frequency (inverse of the average time difference)
 Fs = 1 / mean(diff(time_frq_el_intern));
-N = length(timeWindowData);
 
 % Perform FFT on the frequency data within the time window
+N = length(timeWindowData);
 Y = fft(timeWindowData, N);
 frequencies = (0:N-1) * Fs / N;
 
@@ -49,7 +45,6 @@ plot(frequencies, abs(Y), 'LineWidth', 1.5);
 title('FFT Results Within Time Window');
 xlabel('Frequency (Hz)');
 ylabel('Amplitude');
-grid on;
 
 % Scatter plot of peak frequencies and amplitudes
 subplot(3, 1, 3);
@@ -57,7 +52,28 @@ scatter(peak_frequencies, peak_amplitudes, 'filled');
 title('Peak Frequencies and Amplitudes');
 xlabel('Frequency (Hz)');
 ylabel('Amplitude');
-grid on;
+
+% Analyze harmonic components
+harmonics = 2:10; % Specify the harmonic numbers you want to analyze
+
+figure;
+for i = 1:length(harmonics)
+    harmonic_freq = peak_frequencies * harmonics(i);
+    
+    % Find the closest peak in the FFT results
+    [~, idx] = min(abs(frequencies - harmonic_freq));
+    
+    % Plot the harmonic component
+    subplot(length(harmonics), 1, i);
+    plot(frequencies, abs(Y), 'LineWidth', 1.5);
+    hold on;
+    scatter(frequencies(idx), abs(Y(idx)), 'r', 'filled');
+    hold off;
+    
+    title(['Harmonic Component ', num2str(harmonics(i))]);
+    xlabel('Frequency (Hz)');
+    ylabel('Amplitude');
+end
 
 % Adjust subplot layout
 subplots = get(gcf, 'children');
