@@ -1,0 +1,66 @@
+% Load data from Messdaten.mat
+load('Messdaten.mat');
+
+% Extract Elektrische Rotorfrequenz data
+time_frq_el_intern = frq_el_intern(:, 2);
+frq_el_intern_data = frq_el_intern(:, 1);
+
+% Define the time window
+timeWindowStart =100;
+timeWindowEnd = 150;
+
+% Find indices corresponding to the time window
+start_indices =find(time_frq_el_intern >= timeWindowStart);
+end_indices = find(time_frq_el_intern <= timeWindowEnd);
+
+time_frq_el_intern=time_frq_el_intern(start_indices:end_indices);
+frq_el_intern_data =frq_el_intern_data (start_indices:end_indices);
+
+% Extract data within the time window
+timeWindowData = frq_el_intern_data(indices);
+
+% Define the sampling frequency (inverse of the average time difference)
+%Fs = 1 / mean(diff(time_frq_el_intern));
+Fs=100;
+N=100;
+% Perform FFT on the frequency data within the time window
+
+%N = length(timeWindowData);
+Y = fft(timeWindowData, N);
+frequencies = (0:N-1) * Fs / N;
+
+% Find peaks in the FFT plot
+[peak_amplitudes, peak_frequencies] = findpeaks(abs(Y), frequencies);
+
+% Plot the original frequency data within the time window
+figure;
+subplot(3, 1, 1);
+plot(time_frq_el_intern, frq_el_intern_data, 'LineWidth', 1.5);
+title('Frequency Data Over Time');
+xlabel('Time (s)');
+ylabel('Frequency (Hz)');
+
+% Highlight the time window
+hold on;
+plot([timeWindowStart, timeWindowEnd], [0, 0], 'r', 'LineWidth', 2);
+hold off;
+
+% Plot the FFT results within the time window
+subplot(3, 1, 2);
+plot(frequencies, abs(Y), 'LineWidth', 1.5);
+title('FFT Results Within Time Window');
+xlabel('Frequency (Hz)');
+ylabel('Amplitude');
+
+% Scatter plot of peak frequencies and amplitudes
+subplot(3, 1, 3);
+scatter(peak_frequencies, peak_amplitudes, 'filled');
+title('Peak Frequencies and Amplitudes');
+xlabel('Frequency (Hz)');
+ylabel('Amplitude');
+
+% Adjust subplot layout
+subplots = get(gcf, 'children');
+for i = 1:numel(subplots)
+    subplots(i).Position(3) = 0.85; % Adjust width of subplots
+end
