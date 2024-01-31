@@ -8,54 +8,62 @@ frq_el_intern_data = frq_el_intern(:, 1);
 % Define the sampling frequency (inverse of the average time difference)
 Fs = 1 / mean(diff(time_frq_el_intern));
 
-% Perform FFT on the frequency data
-N = length(frq_el_intern_data);
-Y = fft(frq_el_intern_data, N);
-frequencies = (0:N-1) * Fs / N;
-
-% Find the peak amplitude and its corresponding frequency (fundamental frequency)
-[maxAmplitude, fundamentalFrequencyIndex] = max(abs(Y));
-fundamentalFrequency = frequencies(fundamentalFrequencyIndex);
-
 % Define the number of harmonics to analyze
 numHarmonics = 5;
 
 % Initialize variables for harmonic analysis
-harmonicFrequencies = zeros(1, numHarmonics);
-harmonicAmplitudes = zeros(1, numHarmonics);
-harmonicPhases = zeros(1, numHarmonics);
+harmonicFrequencies = zeros(numHarmonics, size(frq_el_intern_data, 2));
+harmonicAmplitudes = zeros(numHarmonics, size(frq_el_intern_data, 2));
+harmonicPhases = zeros(numHarmonics, size(frq_el_intern_data, 2));
 
-% Analyze the first 'numHarmonics' harmonics
-for harmonicIndex = 1:numHarmonics
-    % Calculate the frequency and amplitude of the harmonic
-    harmonicFrequencies(harmonicIndex) = fundamentalFrequency * harmonicIndex;
-    harmonicAmplitudes(harmonicIndex) = abs(Y(fundamentalFrequencyIndex * harmonicIndex + 1));
-    
-    % Calculate the phase of the harmonic
-    harmonicPhases(harmonicIndex) = angle(Y(fundamentalFrequencyIndex * harmonicIndex + 1));
+% Iterate over each set of frequency data
+for datasetIndex = 1:size(frq_el_intern_data, 2)
+    % Perform FFT on the frequency data
+    N = length(frq_el_intern_data(:, datasetIndex));
+    Y = fft(frq_el_intern_data(:, datasetIndex), N);
+    frequencies = (0:N-1) * Fs / N;
+
+    % Find the peak amplitude and its corresponding frequency (fundamental frequency)
+    [maxAmplitude, fundamentalFrequencyIndex] = max(abs(Y));
+    fundamentalFrequency = frequencies(fundamentalFrequencyIndex);
+
+    % Analyze the first 'numHarmonics' harmonics
+    for harmonicIndex = 1:numHarmonics
+        % Calculate the frequency and amplitude of the harmonic
+        harmonicFrequencies(harmonicIndex, datasetIndex) = fundamentalFrequency * harmonicIndex;
+        harmonicAmplitudes(harmonicIndex, datasetIndex) = abs(Y(fundamentalFrequencyIndex * harmonicIndex + 1));
+
+        % Calculate the phase of the harmonic
+        harmonicPhases(harmonicIndex, datasetIndex) = angle(Y(fundamentalFrequencyIndex * harmonicIndex + 1));
+    end
 end
 
-% Display the results
-disp('Harmonic Analysis Results:');
-disp(['Fundamental Frequency: ' num2str(fundamentalFrequency) ' Hz']);
-disp(['Fundamental Amplitude: ' num2str(maxAmplitude)]);
-disp('Harmonic Frequencies (Hz):');
-disp(harmonicFrequencies);
-disp('Harmonic Amplitudes:');
-disp(harmonicAmplitudes);
-disp('Harmonic Phases (radians):');
-disp(harmonicPhases);
+% Display the results for each dataset
+for datasetIndex = 1:size(frq_el_intern_data, 2)
+    disp(['Results for Dataset ' num2str(datasetIndex) ':']);
+    disp(['Fundamental Frequency: ' num2str(fundamentalFrequency) ' Hz']);
+    disp(['Fundamental Amplitude: ' num2str(maxAmplitude)]);
+    disp('Harmonic Frequencies (Hz):');
+    disp(harmonicFrequencies(:, datasetIndex));
+    disp('Harmonic Amplitudes:');
+    disp(harmonicAmplitudes(:, datasetIndex));
+    disp('Harmonic Phases (radians):');
+    disp(harmonicPhases(:, datasetIndex));
+    disp('------------------------------------------------------');
+end
 
-% Plot the harmonic components
+% Plot the harmonic components for each dataset
 figure;
-subplot(2,1,1);
-stem(harmonicFrequencies, harmonicAmplitudes, 'Marker', 'o');
-title('Harmonic Amplitudes');
-xlabel('Frequency (Hz)');
-ylabel('Amplitude');
+for datasetIndex = 1:size(frq_el_intern_data, 2)
+    subplot(size(frq_el_intern_data, 2), 2, 2 * datasetIndex - 1);
+    stem(harmonicFrequencies(:, datasetIndex), harmonicAmplitudes(:, datasetIndex), 'Marker', 'o');
+    title(['Harmonic Amplitudes - Dataset ' num2str(datasetIndex)]);
+    xlabel('Frequency (Hz)');
+    ylabel('Amplitude');
 
-subplot(2,1,2);
-stem(harmonicFrequencies, harmonicPhases, 'Marker', 'o');
-title('Harmonic Phases');
-xlabel('Frequency (Hz)');
-ylabel('Phase (radians)');
+    subplot(size(frq_el_intern_data, 2), 2, 2 * datasetIndex);
+    stem(harmonicFrequencies(:, datasetIndex), harmonicPhases(:, datasetIndex), 'Marker', 'o');
+    title(['Harmonic Phases - Dataset ' num2str(datasetIndex)]);
+    xlabel('Frequency (Hz)');
+    ylabel('Phase (radians)');
+end
