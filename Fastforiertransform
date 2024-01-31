@@ -1,0 +1,36 @@
+% Load data from Messdaten.mat
+load('Messdaten.mat');
+
+% Extract Elektrische Rotorfrequenz data
+time_frq_el_intern = frq_el_intern(:, 2);
+frq_el_intern_data = frq_el_intern(:, 1);
+
+% Define the sampling frequency (inverse of the average time difference)
+Fs = 1 / mean(diff(time_frq_el_intern));
+
+% Perform FFT on the frequency data for each dataset
+N = length(frq_el_intern_data);
+Y = fft(frq_el_intern_data, N);
+frequencies = (0:N-1) * Fs / N;
+
+% Plot the FFT results for each dataset
+figure;
+subplot(size(frq_el_intern_data, 2) + 1, 1, 1);
+plot(time_frq_el_intern, frq_el_intern_data, 'LineWidth', 1.5);
+title('Frequency Data Over Time');
+xlabel('Time (s)');
+ylabel('Frequency (Hz)');
+
+for datasetIndex = 1:size(frq_el_intern_data, 2)
+    subplot(size(frq_el_intern_data, 2) + 1, 1, datasetIndex + 1);
+    plot(frequencies, abs(Y(:, datasetIndex)), 'LineWidth', 1.5);
+    title(['FFT Results - Dataset ' num2str(datasetIndex)]);
+    xlabel('Frequency (Hz)');
+    ylabel('Amplitude');
+end
+
+% Adjust subplot layout
+subplots = get(gcf, 'children');
+for i = 1:numel(subplots)
+    subplots(i).Position(3) = 0.85; % Adjust width of subplots
+end
