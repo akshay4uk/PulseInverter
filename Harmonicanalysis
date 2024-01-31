@@ -24,16 +24,14 @@ for datasetIndex = 1:size(frq_el_intern_data, 2)
     frequencies = (0:N-1) * Fs / N;
 
     % Find the peak amplitude and its corresponding frequency (fundamental frequency)
-    [maxAmplitude, fundamentalFrequencyIndex] = max(abs(Y));
+    [~, fundamentalFrequencyIndex] = max(abs(Y));
     fundamentalFrequency = frequencies(fundamentalFrequencyIndex);
 
     % Analyze the first 'numHarmonics' harmonics
     for harmonicIndex = 1:numHarmonics
-        % Calculate the frequency and amplitude of the harmonic
+        % Calculate the frequency, amplitude, and phase of the harmonic
         harmonicFrequencies(harmonicIndex, datasetIndex) = fundamentalFrequency * harmonicIndex;
         harmonicAmplitudes(harmonicIndex, datasetIndex) = abs(Y(fundamentalFrequencyIndex * harmonicIndex + 1));
-
-        % Calculate the phase of the harmonic
         harmonicPhases(harmonicIndex, datasetIndex) = angle(Y(fundamentalFrequencyIndex * harmonicIndex + 1));
     end
 end
@@ -42,7 +40,6 @@ end
 for datasetIndex = 1:size(frq_el_intern_data, 2)
     disp(['Results for Dataset ' num2str(datasetIndex) ':']);
     disp(['Fundamental Frequency: ' num2str(fundamentalFrequency) ' Hz']);
-    disp(['Fundamental Amplitude: ' num2str(maxAmplitude)]);
     disp('Harmonic Frequencies (Hz):');
     disp(harmonicFrequencies(:, datasetIndex));
     disp('Harmonic Amplitudes:');
