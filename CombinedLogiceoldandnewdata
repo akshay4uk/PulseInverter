@@ -1,0 +1,89 @@
+% Load data from Messdaten.mat
+load('Messdaten.mat');
+
+% Extract data within the specified time window for each Drehzahl plateau
+% Replace these values with the actual start and end times of the plateaus
+plateau1StartTime = 100;  % Replace with actual start time
+plateau1EndTime = 150;    % Replace with actual end time
+
+plateau2StartTime = 200;  % Replace with actual start time
+plateau2EndTime = 250;    % Replace with actual end time
+
+% Extract data for each plateau
+plateau1Data = n_mech_extern(n_mech_extern(:, 2) >= plateau1StartTime & n_mech_extern(:, 2) <= plateau1EndTime, :);
+plateau2Data = n_mech_extern(n_mech_extern(:, 2) >= plateau2StartTime & n_mech_extern(:, 2) <= plateau2EndTime, :);
+
+% Calculate the external Drehzahl for each plateau
+externalDrehzahlPlateau1 = mean(plateau1Data(:, 1));
+externalDrehzahlPlateau2 = mean(plateau2Data(:, 1));
+
+% Interpolate the Elektrische Rotorfrequenz to match the time points of n_mech_extern
+internalDrehzahlInterpolated = interp1(frq_el_intern(:, 2), frq_el_intern(:, 1), n_mech_extern(:, 2), 'linear', 'extrap');
+
+% Calculate the converted internal Drehzahl for each plateau
+internalDrehzahlPlateau1 = mean(internalDrehzahlInterpolated(n_mech_extern(:, 2) >= plateau1StartTime & n_mech_extern(:, 2) <= plateau1EndTime));
+internalDrehzahlPlateau2 = mean(internalDrehzahlInterpolated(n_mech_extern(:, 2) >= plateau2StartTime & n_mech_extern(:, 2) <= plateau2EndTime));
+
+% Calculate absolute and percentage deviations for each plateau
+Dev_Ab_Plateau1 = abs(externalDrehzahlPlateau1 - internalDrehzahlPlateau1);
+Dev_Pe_Plateau1 = abs(externalDrehzahlPlateau1 - internalDrehzahlPlateau1) / externalDrehzahlPlateau1 * 100;
+
+Dev_Ab_Plateau2 = abs(externalDrehzahlPlateau2 - internalDrehzahlPlateau2);
+Dev_Pe_Plateau2 = abs(externalDrehzahlPlateau2 - internalDrehzahlPlateau2) / externalDrehzahlPlateau2 * 100;
+
+% Plot the graph
+figure;
+
+subplot(2,2,1);
+plot(plateau1Data(:, 2), plateau1Data(:, 1));
+xlabel('Zeit in s');
+ylabel('Drehzahl in rpm');
+title('Plateau 1 - Externes Drehzahlsignal');
+grid on;
+
+subplot(2,2,2);
+plot(n_mech_extern(:, 2), internalDrehzahlInterpolated);
+xlabel('Zeit in s');
+ylabel('Elektrische Rotorfrequenz in Hz');
+title('Interpoliertes Internes Rotorfrequenzsignal');
+grid on;
+
+subplot(2,2,3);
+bar(1, Dev_Ab_Plateau1);
+title('Plateau 1 - Absolute Abweichung');
+ylabel('Absolute Drehzahlsabweichung in rpm');
+grid on;
+
+subplot(2,2,4);
+bar(1, Dev_Pe_Plateau1);
+title('Plateau 1 - Prozentuale Abweichung');
+ylabel('Prozentuale Drehzahlsabweichung [%]');
+grid on;
+
+figure;
+
+subplot(2,2,1);
+plot(plateau2Data(:, 2), plateau2Data(:, 1));
+xlabel('Zeit in s');
+ylabel('Drehzahl in rpm');
+title('Plateau 2 - Externes Drehzahlsignal');
+grid on;
+
+subplot(2,2,2);
+plot(n_mech_extern(:, 2), internalDrehzahlInterpolated);
+xlabel('Zeit in s');
+ylabel('Elektrische Rotorfrequenz in Hz');
+title('Interpoliertes Internes Rotorfrequenzsignal');
+grid on;
+
+subplot(2,2,3);
+bar(1, Dev_Ab_Plateau2);
+title('Plateau 2 - Absolute Abweichung');
+ylabel('Absolute Drehzahlsabweichung in rpm');
+grid on;
+
+subplot(2,2,4);
+bar(1, Dev_Pe_Plateau2);
+title('Plateau 2 - Prozentuale Abweichung');
+ylabel('Prozentuale Drehzahlsabweichung [%]');
+grid on;
