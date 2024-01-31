@@ -1,0 +1,58 @@
+% Load data from Messdaten.mat
+load('Messdaten.mat');
+
+% Extract Elektrische Rotorfrequenz data
+time_frq_el_intern = frq_el_intern(:, 2);
+frq_el_intern_data = frq_el_intern(:, 1);
+
+% Calculate internal Drehzahl for Np = 2, 4, and 8
+internalDrehzahlNp2 = 60 * frq_el_intern_data / 2;
+internalDrehzahlNp4 = 60 * frq_el_intern_data / 4;
+internalDrehzahlNp8 = 60 * frq_el_intern_data / 8;
+
+% Interpolate the calculated internal Drehzahl to match the time points of n_mech_extern
+internalDrehzahlInterpolatedNp2 = interp1(time_frq_el_intern, internalDrehzahlNp2, n_mech_extern(:, 2), 'linear', 'extrap');
+internalDrehzahlInterpolatedNp4 = interp1(time_frq_el_intern, internalDrehzahlNp4, n_mech_extern(:, 2), 'linear', 'extrap');
+internalDrehzahlInterpolatedNp8 = interp1(time_frq_el_intern, internalDrehzahlNp8, n_mech_extern(:, 2), 'linear', 'extrap');
+
+% Calculate deviation for Np = 2, 4, and 8
+deviationNp2 = abs(n_mech_extern(:, 1) - internalDrehzahlInterpolatedNp2);
+deviationNp4 = abs(n_mech_extern(:, 1) - internalDrehzahlInterpolatedNp4);
+deviationNp8 = abs(n_mech_extern(:, 1) - internalDrehzahlInterpolatedNp8);
+
+% Plot the graph for Np = 2, 4, and 8
+figure;
+
+subplot(3,1,1);
+plot(n_mech_extern(:, 2), deviationNp2, 'DisplayName', 'Deviation Np = 2');
+xlabel('Zeit in s');
+ylabel('Deviation (RPM)');
+title('Deviation between External and Internal Speeds (Np = 2)');
+legend;
+grid on;
+
+subplot(3,1,2);
+plot(n_mech_extern(:, 2), deviationNp4, 'DisplayName', 'Deviation Np = 4');
+xlabel('Zeit in s');
+ylabel('Deviation (RPM)');
+title('Deviation between External and Internal Speeds (Np = 4)');
+legend;
+grid on;
+
+subplot(3,1,3);
+plot(n_mech_extern(:, 2), deviationNp8, 'DisplayName', 'Deviation Np = 8');
+xlabel('Zeit in s');
+ylabel('Deviation (RPM)');
+title('Deviation between External and Internal Speeds (Np = 8)');
+legend;
+grid on;
+
+% Calculate and plot the deviation for Np = 4
+figure;
+deviationNp4Only = abs(n_mech_extern(:, 1) - internalDrehzahlInterpolatedNp4);
+plot(n_mech_extern(:, 2), deviationNp4Only, 'DisplayName', 'Deviation Np = 4');
+xlabel('Zeit in s');
+ylabel('Deviation (RPM)');
+title('Deviation between External and Internal Speeds (Np = 4 Only)');
+legend;
+grid on;
