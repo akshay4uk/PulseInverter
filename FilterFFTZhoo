@@ -9,16 +9,6 @@ Dev_percentage_D = Dev_absolute_D ./ n_mech_extern(:,1) * 100;
 Dev_percentage_D(isinf(Dev_percentage_D)) = 0;
 Dev_percentage_D(isnan(Dev_percentage_D)) = 0;
 
-% Plot the original percentage deviation
-figure;
-plot(n_mech_extern(:,2), Dev_percentage_D, '-', 'MarkerSize', 20);
-xlim([0 400]);
-ylim([-20 20]);
-title("Original Percentage Deviation");
-xlabel("Time in s");
-ylabel("Percentage Deviation [%]");
-grid;
-
 % Designing a low-pass Butterworth filter
 order = 4; % Filter order
 cutoff_frequency = 0.05; % Adjust the cutoff frequency as needed
@@ -26,44 +16,19 @@ cutoff_frequency = 0.05; % Adjust the cutoff frequency as needed
 [b, a] = butter(order, cutoff_frequency, 'low');
 
 % Applying the filter to the signal
-filtered_signal = filtfilt(b, a, Dev_percentage_D);
+filtered_signal = filtfilt(b, a, abs(Dev_percentage_D)); % Applying filter to absolute value
 
-% Plotting the original and filtered signals
+% Plotting the original and filtered signals on the same graph
 figure;
-subplot(2,1,1);
-plot(n_mech_extern(:,2), Dev_percentage_D);
-title('Original Signal');
-xlabel('Time (s)');
-ylabel('Percentage Deviation [%]');
+plot(n_mech_extern(:,2), Dev_percentage_D, '-b', 'MarkerSize', 10, 'DisplayName', 'Original Signal');
+hold on;
+plot(n_mech_extern(:,2), filtered_signal, '-r', 'MarkerSize', 10, 'DisplayName', 'Filtered Signal');
+hold off;
 
-subplot(2,1,2);
-plot(n_mech_extern(:,2), filtered_signal);
-title('Filtered Signal');
-xlabel('Time (s)');
-ylabel('Percentage Deviation [%]');
-
-% Performing FFT on the filtered signal
-L_filtered = length(filtered_signal);
-t_filtered = n_mech_extern(:,2);
-T_filtered = (max(t_filtered) - min(t_filtered)) / L_filtered;
-Fs_filtered = 1 / T_filtered;
-
-Xn_filtered = filtered_signal;
-Yn_filtered = fft(Xn_filtered);
-
-f_filtered = Fs_filtered / L_filtered * (0:(L_filtered/2));
-P2_filtered = abs(Yn_filtered / L_filtered);
-P1_filtered = P2_filtered(1:L_filtered/2+1);
-P1_filtered(2:end-1) = 2 * P1_filtered(2:end-1);
-
-% Plotting the normalized amplitude spectrum of the filtered signal
-figure;
-stem(f_filtered, P1_filtered);
-set(gca,'XScale','log');
-set(gca,'YScale','log');
-title('Normalized Amplitude Spectrum (Filtered Signal)');
-xlim([0 0.1]);
-xlabel('Frequency (Hz)');
-ylabel('Normalized Amplitude in rpm');
-
-FFT_data_filtered = [f_filtered' P1_filtered];
+xlim([0 400]);
+ylim([-20 20]);
+title("Original and Filtered Signals");
+xlabel("Time in s");
+ylabel("Percentage Deviation [%]");
+legend;
+grid;
