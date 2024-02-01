@@ -1,48 +1,48 @@
-% Load data
+% Daten laden
 load('Messdaten.mat');
 load('Devabsolute.mat');
 
-% Designing a low-pass Butterworth filter
-order = 4; % Filter order
-cutoff_frequency = 0.05; % Adjust the cutoff frequency as needed
+% Entwurf eines Tiefpass-Butterworth-Filters
+Ordnung = 4; % Filterordnung
+Grenzfrequenz = 0.05; % Grenzfrequenz nach Bedarf anpassen
 
-[b_lowpass, a_lowpass] = butter(order, cutoff_frequency, 'low');
+[b_tiefpass, a_tiefpass] = butter(Ordnung, Grenzfrequenz, 'low');
 
-% Applying the low-pass filter to the signal using filtfilt
-filtered_signal_lowpass = filtfilt(b_lowpass, a_lowpass, Dev_absolute_D);
+% Anwendung des Tiefpassfilters auf das Signal unter Verwendung von filtfilt
+gefiltertes_signal_tiefpass = filtfilt(b_tiefpass, a_tiefpass, Dev_absolute_D);
 
-% Plotting the original and filtered signals on the same graph
+% Darstellung des Original- und gefilterten Signals in einem Diagramm
 figure;
 
-% Plot original signal
-plot(n_mech_extern(:,2), Dev_absolute_D, '-b', 'LineWidth', 1.5, 'DisplayName', 'Original Signal');
+% Originalsignal plotten
+plot(n_mech_extern(:,2), Dev_absolute_D, '-b', 'LineWidth', 1.5, 'DisplayName', 'Originalsignal');
 hold on;
 
-% Plot low-pass filtered signal
-plot(n_mech_extern(:,2), filtered_signal_lowpass, '-g', 'LineWidth', 1.5, 'DisplayName', 'Low-Pass Filtered Signal');
+% Gefiltertes Tiefpasssignal plotten
+plot(n_mech_extern(:,2), gefiltertes_signal_tiefpass, '-g', 'LineWidth', 1.5, 'DisplayName', 'Tiefpass-gefiltertes Signal');
 
-% Add vertical lines indicating the cutoff frequency
-line([0 400], [cutoff_frequency cutoff_frequency], 'Color', 'r', 'LineStyle', '--', 'DisplayName', 'Cutoff Frequency');
+% Vertikale Linien zur Anzeige der Grenzfrequenz hinzufügen
+line([0 400], [Grenzfrequenz Grenzfrequenz], 'Color', 'r', 'LineStyle', '--', 'DisplayName', 'Grenzfrequenz');
 
-% Highlight the area below the original signal
-fill_between_lines(n_mech_extern(:,2), Dev_absolute_D, 0, 'b', 0.1, 'Original Region');
+% Bereich unterhalb des Originalsignals hervorheben
+flaechen_unten_hervorheben(n_mech_extern(:,2), Dev_absolute_D, 0, 'b', 0.1, 'Originalbereich');
 
 hold off;
 
 xlim([0 400]);
-ylim([0 max(Dev_absolute_D) + 5]); % Adjust the y-axis limits as needed
-title("Original and Low-Pass Filtered Signals");
-xlabel("Time in s");
-ylabel("Deviation");
+ylim([0 max(Dev_absolute_D) + 5]); % y-Achsenbegrenzung nach Bedarf anpassen
+title("Original- und Tiefpass-gefilterte Signale");
+xlabel("Zeit in s");
+ylabel("Abweichung");
 legend('Location', 'northeast');
 grid;
 
-% Add annotations
-text(150, cutoff_frequency + 1, sprintf('Cutoff Frequency: %.2f Hz', cutoff_frequency), 'Color', 'r');
+% Anmerkungen hinzufügen
+text(150, Grenzfrequenz + 1, sprintf('Grenzfrequenz: %.2f Hz', Grenzfrequenz), 'Color', 'r');
 
-% Function to fill the area below a line
-function fill_between_lines(x, y, baseline, color, alpha, displayName)
-    x_fill = [x; flipud(x)];
-    y_fill = [y; baseline*ones(size(y))];
-    fill(x_fill, y_fill, color, 'FaceAlpha', alpha, 'EdgeColor', 'none', 'DisplayName', displayName);
+% Funktion zum Hervorheben des Bereichs unterhalb einer Linie
+function flaechen_unten_hervorheben(x, y, baseline, farbe, alpha, displayName)
+    x_fuellung = [x; flipud(x)];
+    y_fuellung = [y; baseline*ones(size(y))];
+    fill(x_fuellung, y_fuellung, farbe, 'FaceAlpha', alpha, 'EdgeColor', 'none', 'DisplayName', displayName);
 end
