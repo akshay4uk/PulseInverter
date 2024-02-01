@@ -1,3 +1,24 @@
+% Load data
+load('Messdaten.mat');
+load('Devabsolute.mat');
+
+% Calculate percentage deviation
+Dev_percentage_D = Dev_absolute_D ./ n_mech_extern(:,1) * 100;
+
+% Handle infinite and NaN values
+Dev_percentage_D(isinf(Dev_percentage_D)) = 0;
+Dev_percentage_D(isnan(Dev_percentage_D)) = 0;
+
+% Plot the original percentage deviation
+figure;
+plot(n_mech_extern(:,2), Dev_percentage_D, '-', 'MarkerSize', 20);
+xlim([0 400]);
+ylim([-20 20]);
+title("Original Percentage Deviation");
+xlabel("Time in s");
+ylabel("Percentage Deviation [%]");
+grid;
+
 % Designing a low-pass Butterworth filter
 order = 4; % Filter order
 cutoff_frequency = 0.05; % Adjust the cutoff frequency as needed
@@ -10,20 +31,20 @@ filtered_signal = filtfilt(b, a, Dev_percentage_D);
 % Plotting the original and filtered signals
 figure;
 subplot(2,1,1);
-plot(t, Dev_percentage_D);
+plot(n_mech_extern(:,2), Dev_percentage_D);
 title('Original Signal');
 xlabel('Time (s)');
 ylabel('Percentage Deviation [%]');
 
 subplot(2,1,2);
-plot(t, filtered_signal);
+plot(n_mech_extern(:,2), filtered_signal);
 title('Filtered Signal');
 xlabel('Time (s)');
 ylabel('Percentage Deviation [%]');
 
 % Performing FFT on the filtered signal
 L_filtered = length(filtered_signal);
-t_filtered = t;
+t_filtered = n_mech_extern(:,2);
 T_filtered = (max(t_filtered) - min(t_filtered)) / L_filtered;
 Fs_filtered = 1 / T_filtered;
 
