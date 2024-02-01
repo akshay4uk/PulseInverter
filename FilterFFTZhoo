@@ -1,0 +1,48 @@
+% Designing a low-pass Butterworth filter
+order = 4; % Filter order
+cutoff_frequency = 0.05; % Adjust the cutoff frequency as needed
+
+[b, a] = butter(order, cutoff_frequency, 'low');
+
+% Applying the filter to the signal
+filtered_signal = filtfilt(b, a, Dev_percentage_D);
+
+% Plotting the original and filtered signals
+figure;
+subplot(2,1,1);
+plot(t, Dev_percentage_D);
+title('Original Signal');
+xlabel('Time (s)');
+ylabel('Percentage Deviation [%]');
+
+subplot(2,1,2);
+plot(t, filtered_signal);
+title('Filtered Signal');
+xlabel('Time (s)');
+ylabel('Percentage Deviation [%]');
+
+% Performing FFT on the filtered signal
+L_filtered = length(filtered_signal);
+t_filtered = t;
+T_filtered = (max(t_filtered) - min(t_filtered)) / L_filtered;
+Fs_filtered = 1 / T_filtered;
+
+Xn_filtered = filtered_signal;
+Yn_filtered = fft(Xn_filtered);
+
+f_filtered = Fs_filtered / L_filtered * (0:(L_filtered/2));
+P2_filtered = abs(Yn_filtered / L_filtered);
+P1_filtered = P2_filtered(1:L_filtered/2+1);
+P1_filtered(2:end-1) = 2 * P1_filtered(2:end-1);
+
+% Plotting the normalized amplitude spectrum of the filtered signal
+figure;
+stem(f_filtered, P1_filtered);
+set(gca,'XScale','log');
+set(gca,'YScale','log');
+title('Normalized Amplitude Spectrum (Filtered Signal)');
+xlim([0 0.1]);
+xlabel('Frequency (Hz)');
+ylabel('Normalized Amplitude in rpm');
+
+FFT_data_filtered = [f_filtered' P1_filtered];
