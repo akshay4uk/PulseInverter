@@ -1,0 +1,79 @@
+load('Messdaten.mat');
+ 
+load('Devabsolute.mat');
+%load('Devpercentage.mat');
+ 
+Dev_percentage_D = Dev_absolute_D./n_mech_extern(:,1)*100
+ 
+Dev_percentage_D(isinf(Dev_percentage_D)) = 0 ;
+Dev_percentage_D(isnan(Dev_percentage_D)) = 0;
+ 
+% figure(1)
+% plot(n_mech_extern(:,2), Dev_percentage_D,'-','MarkerSize',20);
+% xlim([0 400])
+% ylim([-20 20])
+% title("Prozentuale Abweichung")
+% xlabel("Zeit in s")
+% ylabel("Prozentuale Drehzahlsabweichung [%]")
+% grid
+ 
+L = length(Dev_percentage_D);
+t = n_mech_extern(:,2); % Time vector
+T = (max(n_mech_extern(:,2)) - min(n_mech_extern(:,2))) / L; % Sampling period
+Fs = 1/T; % Sampling frequency
+ 
+Xn = Dev_percentage_D;
+Yn = fft(Xn);
+ 
+f = Fs/L*(0:(L/2));
+P2 = abs(Yn/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+ 
+figure(1)
+clf;
+plot(t,Xn)
+title("Signal Corrupted with Zero-Mean Random Noise")
+xlabel("t (s)")
+ylabel("X(t)")
+ 
+figure(2)
+clf;
+stem(f,P1) 
+set(gca,'XScale','log')
+set(gca,'YScale','log')
+%loglog(f,P1,'.-') 
+title("Normalisiertes Amplitudenspektrum")
+xlim([0 0.1])
+ylim([0 100])
+xlabel("Frequenz (Hz)")
+ylabel("Normierte Amplitude in rpm")
+ 
+FFT_data = [f' P1]
+ 
+% L = length(Dev_percentage_D);
+% t = n_mech_extern(:,2); % Time vector
+% T = (max(n_mech_extern(:,2)) - min(n_mech_extern(:,2))) / L; % Sampling period
+% Fs = 1/T; % Sampling frequency 
+% 
+% Xn = Dev_percentage_D;
+% Yn = fft(Xn);
+% 
+% f = Fs/L*(0:(L/2));
+% P2 = abs(Yn/L);
+% P1 = P2(1:L/2+1);
+% P1(2:end-1) = 2*P1(2:end-1);
+% 
+% figure(1)
+% plot(t,Xn)
+% title("Signal Corrupted with Zero-Mean Random Noise")
+% xlabel("t (s)")
+% ylabel("X(t)")
+% xlim([0 400])
+% ylim([-20 20])
+% 
+% figure(2)
+% loglog(f,P1,"LineWidth",3) 
+% title("Single-Sided Amplitude Spectrum of S(t)")
+% xlabel("f (Hz)")
+% ylabel("|P1(f)|")
