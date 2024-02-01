@@ -2,33 +2,35 @@
 load('Messdaten.mat');
 load('Devabsolute.mat');
 
-% Calculate percentage deviation
-Dev_percentage_D = Dev_absolute_D ./ n_mech_extern(:,1) * 100;
-
-% Handle infinite and NaN values
-Dev_percentage_D(isinf(Dev_percentage_D)) = 0;
-Dev_percentage_D(isnan(Dev_percentage_D)) = 0;
-
-% Designing a low-pass Butterworth filter
+% Designing a band-pass Butterworth filter
 order = 4; % Filter order
+low_cutoff_frequency = 0.02; % Adjust the low cutoff frequency as needed
+high_cutoff_frequency = 0.08; % Adjust the high cutoff frequency as needed
+
+[b_bandpass, a_bandpass] = butter(order, [low_cutoff_frequency, high_cutoff_frequency], 'bandpass');
+
+% Applying the band-pass filter to the signal
+filtered_signal_bandpass = filtfilt(b_bandpass, a_bandpass, Dev_absolute_D);
+
+% Designing a low-pass Butterworth filter for comparison
 cutoff_frequency = 0.05; % Adjust the cutoff frequency as needed
+[b_lowpass, a_lowpass] = butter(order, cutoff_frequency, 'low');
 
-[b, a] = butter(order, cutoff_frequency, 'low');
-
-% Applying the filter to the signal
-filtered_signal = filtfilt(b, a, abs(Dev_percentage_D)); % Applying filter to absolute value
+% Applying the low-pass filter to the signal using filtfilt
+filtered_signal_lowpass = filtfilt(b_lowpass, a_lowpass, Dev_absolute_D);
 
 % Plotting the original and filtered signals on the same graph
 figure;
-plot(n_mech_extern(:,2), Dev_percentage_D, '-b', 'MarkerSize', 10, 'DisplayName', 'Original Signal');
+plot(n_mech_extern(:,2), Dev_absolute_D, '-b', 'MarkerSize', 10, 'DisplayName', 'Original Signal');
 hold on;
-plot(n_mech_extern(:,2), filtered_signal, '-r', 'MarkerSize', 10, 'DisplayName', 'Filtered Signal');
+plot(n_mech_extern(:,2), filtered_signal_bandpass, '-r', 'MarkerSize', 10, 'DisplayName', 'Band-Pass Filtered Signal');
+plot(n_mech_extern(:,2), filtered_signal_lowpass, '-g', 'MarkerSize', 10, 'DisplayName', 'Low-Pass Filtered Signal');
 hold off;
 
 xlim([0 400]);
-ylim([-20 20]);
+ylim([0 max(Dev_absolute_D)]); % Adjust the y-axis limits as needed
 title("Original and Filtered Signals");
 xlabel("Time in s");
-ylabel("Percentage Deviation [%]");
+ylabel("Deviation");
 legend;
 grid;
