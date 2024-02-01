@@ -2,18 +2,10 @@
 load('Messdaten.mat');
 load('Devabsolute.mat');
 
-% Designing a band-pass Butterworth filter
+% Designing a low-pass Butterworth filter
 order = 4; % Filter order
-low_cutoff_frequency = 0.02; % Adjust the low cutoff frequency as needed
-high_cutoff_frequency = 0.08; % Adjust the high cutoff frequency as needed
-
-[b_bandpass, a_bandpass] = butter(order, [low_cutoff_frequency, high_cutoff_frequency], 'bandpass');
-
-% Applying the band-pass filter to the signal
-filtered_signal_bandpass = filtfilt(b_bandpass, a_bandpass, Dev_absolute_D);
-
-% Designing a low-pass Butterworth filter for comparison
 cutoff_frequency = 0.05; % Adjust the cutoff frequency as needed
+
 [b_lowpass, a_lowpass] = butter(order, cutoff_frequency, 'low');
 
 % Applying the low-pass filter to the signal using filtfilt
@@ -21,16 +13,32 @@ filtered_signal_lowpass = filtfilt(b_lowpass, a_lowpass, Dev_absolute_D);
 
 % Plotting the original and filtered signals on the same graph
 figure;
-plot(n_mech_extern(:,2), Dev_absolute_D, '-b', 'MarkerSize', 10, 'DisplayName', 'Original Signal');
+
+% Plot original signal
+plot(n_mech_extern(:,2), Dev_absolute_D, '-b', 'LineWidth', 1.5, 'DisplayName', 'Original Signal');
 hold on;
-plot(n_mech_extern(:,2), filtered_signal_bandpass, '-r', 'MarkerSize', 10, 'DisplayName', 'Band-Pass Filtered Signal');
-plot(n_mech_extern(:,2), filtered_signal_lowpass, '-g', 'MarkerSize', 10, 'DisplayName', 'Low-Pass Filtered Signal');
+
+% Plot low-pass filtered signal
+plot(n_mech_extern(:,2), filtered_signal_lowpass, '-g', 'LineWidth', 1.5, 'DisplayName', 'Low-Pass Filtered Signal');
+
+% Add vertical lines indicating the cutoff frequency
+line([0 400], [cutoff_frequency cutoff_frequency], 'Color', 'r', 'LineStyle', '--', 'DisplayName', 'Cutoff Frequency');
+
 hold off;
+
+% Highlight the shaded region for the filtered signal
+x_fill = [n_mech_extern(1,2), n_mech_extern(end,2), n_mech_extern(end,2), n_mech_extern(1,2)];
+y_fill = [min(Dev_absolute_D), min(Dev_absolute_D), max(Dev_absolute_D), max(Dev_absolute_D)];
+patch(x_fill, y_fill, 'g', 'FaceAlpha', 0.2, 'EdgeColor', 'none', 'DisplayName', 'Filtered Region');
 
 xlim([0 400]);
 ylim([0 max(Dev_absolute_D)]); % Adjust the y-axis limits as needed
-title("Original and Filtered Signals");
+title("Original and Low-Pass Filtered Signals");
 xlabel("Time in s");
 ylabel("Deviation");
-legend;
+legend('Location', 'northeast');
 grid;
+
+% Add annotations
+text(150, cutoff_frequency + 1, sprintf('Cutoff Frequency: %.2f Hz', cutoff_frequency), 'Color', 'r');
+text(50, max(Dev_absolute_D) - 2, 'Filtered Region', 'Color', 'g');
