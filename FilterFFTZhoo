@@ -45,4 +45,35 @@ function flaechen_unten_hervorheben(x, y, baseline, farbe, alpha, displayName)
     x_fuellung = [x; flipud(x)];
     y_fuellung = [y; baseline*ones(size(y))];
     fill(x_fuellung, y_fuellung, farbe, 'FaceAlpha', alpha, 'EdgeColor', 'none', 'DisplayName', displayName);
-end
+//Harmonische Schwingungen in Signalen entstehen oft durch periodische Komponenten bei bestimmten Frequenzen und können als eine Form sich wiederholenden, sinusförmigen Verhaltens betrachtet werden. Im Kontext der Signalverarbeitung und -analyse
+Signal Clarity:
+
+Harmonic oscillations can introduce unwanted high-frequency components to a signal, which may obscure the underlying trend or desired information. A low-pass filter helps remove these high-frequency components, improving the clarity of the signal.
+Noise Reduction:
+
+Harmonic oscillations can sometimes be considered as noise if they are unwanted or interfere with the analysis of the main signal. Filtering out high-frequency components through a low-pass filter reduces noise, making it easier to identify and analyze the fundamental components of interest.
+Frequency Separation:
+
+In many cases, the fundamental frequency of interest in a signal is associated with the main behavior or feature, while harmonic frequencies represent multiples of that fundamental frequency. A low-pass filter helps separate the fundamental frequency from its harmonics, allowing for a more detailed analysis of each component.
+Preventing Aliasing:
+
+Aliasing occurs when high-frequency components in a signal are incorrectly interpreted as lower-frequency components during the sampling process. Applying a low-pass filter before sampling helps prevent aliasing, ensuring that the signal is properly represented in the digital domain.
+Control Systems and Mechanics:
+
+In control systems and mechanical engineering, harmonic oscillations may arise from vibrations or mechanical resonances. Filtering out high-frequency components can be crucial for control stability, preventing mechanical wear, and ensuring the accuracy of measurements.
+Audio Processing:
+
+In audio processing, harmonic oscillations may be present in musical signals. Filtering can be essential for music production, speech recognition, and other audio applications to enhance the quality of sound and isolate specific frequency ranges.
+Power Systems:
+
+In electrical engineering, harmonic oscillations in power systems can lead to issues such as power quality problems. Filtering out harmonics helps maintain the stability and reliability of power distribution systems.
+In summary, filtering, especially using a low-pass filter, is essential for managing harmonic oscillations in signals to improve signal quality, reduce noise, and facilitate more accurate analysis in various engineering and scientific applications
+Low-pass Filter:
+
+A low-pass filter attenuates (reduces the amplitude of) frequencies higher than a specified cutoff frequency.
+Frequencies below the cutoff pass through relatively unaffected.
+
+Purpose:
+
+The primary purpose of using a low-pass filter in this scenario is to smooth out the signal by removing high-frequency noise or unwanted variations.
+This is often useful when you are interested in analyzing the underlying trends or slow changes in a signal while ignoring fast and potentially disruptive oscillations.
