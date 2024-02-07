@@ -40,7 +40,7 @@ end
 % Perform harmonic analysis
 harmonic_magnitudes = Frequenz_fft_mag(harmonic_indices);
 
-% Plot FFT
+% Plot FFT with harmonics
 figure;
 plot(frequencies, Frequenz_fft_mag);
 hold on;
@@ -53,7 +53,7 @@ legend('FFT', 'Harmonics');
 grid on;
 
 % Save the plot as a PNG file
-print('-dpng', 'Harmonic_Analysis.png');
+print('-dpng', 'Frequency_Spectrum_Harmonics.png');
 
 % Plot spectral density
 figure;
