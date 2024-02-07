@@ -37,15 +37,7 @@ end
 % Perform harmonic analysis
 harmonic_magnitudes = Frequenz_fft_mag(harmonic_indices);
 
-% Display harmonic analysis results
-disp('Harmonic Analysis Results:');
-disp('--------------------------');
-disp('Harmonic   Frequency (Hz)   Magnitude');
-for i = 1:length(harmonic_frequencies)
-    disp([sprintf('   %d\t\t   %.2f\t\t  %.4f', i, harmonic_frequencies(i), harmonic_magnitudes(i))]);
-end
-
-% Plot the frequency spectrum
+% Plot FFT
 figure;
 plot(frequencies, Frequenz_fft_mag);
 hold on;
@@ -54,7 +46,22 @@ hold off;
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
 title('Frequency Spectrum with Harmonic Peaks');
+legend('FFT', 'Harmonics');
 grid on;
 
-% Save the plot as a PNG file
-print('-dpng', 'Frequency_Spectrum_Harmonic_Analysis.png');
+% Plot spectral density
+figure;
+[p, f] = periodogram(Frequenz, [], N, Fs, 'power');
+plot(f, p);
+xlabel('Frequency (Hz)');
+ylabel('Power/Frequency (dB/Hz)');
+title('Spectral Density');
+grid on;
+
+% Plot harmonic analysis results
+figure;
+bar(harmonic_frequencies, harmonic_magnitudes);
+xlabel('Harmonic Frequency (Hz)');
+ylabel('Magnitude');
+title('Harmonic Analysis Results');
+grid on;
