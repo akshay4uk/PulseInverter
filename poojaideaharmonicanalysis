@@ -13,32 +13,63 @@ Zeit = frq_el_intern(time_range_indices, 2); % Extract time data
 % Specify the pulses per revolution
 pulses_per_revolution = 4;
 
-% Define fundamental frequencies for each case
+% Define fundamental frequencies for each case study (in Hz)
 fundamental_frequencies = [66, 200, 400, 600, 5]; % Hz
 num_cases = length(fundamental_frequencies);
 
-% Initialize arrays to store harmonic magnitudes for each case
+% Initialize arrays to store harmonic magnitudes for each case study
 num_harmonics = 6;
 harmonic_magnitudes_all = zeros(num_cases, num_harmonics);
 
-% Perform harmonic analysis for each case
+% Perform harmonic analysis for each case study
 for c = 1:num_cases
-    % Calculate rotor speed (RPM) of the motor for current case
+    % Calculate rotor speed (RPM) of the motor for current case study
     RPM = (Frequenz * 60) / pulses_per_revolution;
 
-    % Define fundamental frequency for current case
+    % Define fundamental frequency for current case study
     fundamental_frequency = fundamental_frequencies(c);
 
-    % Define harmonic frequencies for current case
+    % Define harmonic frequencies for current case study
     harmonic_frequencies = fundamental_frequency * (1:num_harmonics);
 
-    % Perform harmonic analysis for current case
+    % Perform harmonic analysis for current case study
     for i = 1:num_harmonics
         harmonic_magnitudes_all(c, i) = max(abs(RPM - i * fundamental_frequency));
     end
+    
+    % Compute FFT of the RPM signal
+    N = length(RPM);
+    Fs = 1 / (Zeit(2) - Zeit(1)); % Sampling frequency in Hz
+    RPM_fft = fft(RPM, N); % Compute FFT
+    RPM_fft_mag = abs(RPM_fft) / N; % Normalize by the number of samples
+    frequencies = Fs * (-N/2:N/2-1) / N;
+    
+    % Squish plot
+    figure;
+    plot(frequencies, 10*log10(RPM_fft_mag));
+    xlabel('Frequency (Hz)');
+    ylabel('Magnitude (dB)');
+    title(['Squish Plot of Frequency Spectrum of Rotor Speed (RPM) for Fundamental Frequency: ', num2str(fundamental_frequency), ' Hz']);
+    grid on;
+    
+    % Save squish plot as PNG file
+    filename = ['Squish_Plot_RPM_Frequency_Spectrum_Case_', num2str(c), '.png'];
+    print(filename, '-dpng');
+    
+    % Spectral analysis
+    figure;
+    periodogram(RPM,[],[],Fs,'power');
+    xlabel('Frequency (Hz)');
+    ylabel('Power/Frequency (dB/Hz)');
+    title(['Spectral Analysis of Rotor Speed (RPM) for Fundamental Frequency: ', num2str(fundamental_frequency), ' Hz']);
+    grid on;
+    
+    % Save spectral analysis plot as PNG file
+    filename = ['Spectral_Analysis_RPM_Case_', num2str(c), '.png'];
+    print(filename, '-dpng');
 end
 
-% Display harmonic analysis results for each case
+% Display harmonic analysis results for each case study
 disp('Harmonic Analysis Results:');
 disp('--------------------------');
 disp('Case   Harmonic   Frequency (RPM)   Magnitude');
@@ -47,20 +78,3 @@ for c = 1:num_cases
         fprintf('%d \t %d \t %10.2f \t %10.4f\n', c, i, harmonic_frequencies(i), harmonic_magnitudes_all(c, i));
     end
 end
-
-% Plot the harmonic analysis results for each case
-figure;
-hold on;
-colors = {'r', 'g', 'b', 'm', 'c'};
-for c = 1:num_cases
-    plot(harmonic_frequencies, harmonic_magnitudes_all(c, :), 'Color', colors{c}, 'Marker', 'o', 'LineStyle', 'none', 'DisplayName', ['Case ', num2str(c)]);
-end
-xlabel('Frequency (RPM)');
-ylabel('Magnitude');
-title('Harmonic Analysis of Rotor Speed (RPM) for Different Fundamental Frequencies');
-grid on;
-legend('Location', 'best');
-hold off;
-
-% Save the plot as PNG file
-print('-dpng', 'Harmonic_Analysis_Rotor_Speed_Cases.png');
