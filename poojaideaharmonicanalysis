@@ -16,17 +16,6 @@ pulses_per_revolution = 4;
 % Calculate rotor speed (RPM) of the motor
 RPM = (Frequenz * 60) / pulses_per_revolution;
 
-% Perform FFT on the RPM data
-N = numel(RPM); % Length of the signal
-Fs = 1 / (Zeit(2) - Zeit(1)); % Sampling frequency in Hz
-RPM_fft = fft(RPM, N); % Compute FFT
-
-% Calculate the magnitude of the FFT signal (including both positive and negative frequencies)
-RPM_fft_mag = abs(RPM_fft) / N; % Normalize by the number of samples
-
-% Define frequencies corresponding to FFT bins
-frequencies = Fs * (-N/2:N/2-1) / N;
-
 % Define fundamental frequency (1x)
 fundamental_frequency = mean(RPM);
 
@@ -48,19 +37,13 @@ for i = 1:num_harmonics
     fprintf('%8d \t %10.2f \t %10.4f\n', i, harmonic_frequencies(i), harmonic_magnitudes(i));
 end
 
-% Plot the squish plot for the frequency spectrum with harmonic peaks
+% Plot the harmonic analysis results
 figure;
-plot(frequencies, 10*log10(RPM_fft_mag));
-xlabel('Frequency (Hz)');
-ylabel('Magnitude (dB)');
-title('Squish Plot of Frequency Spectrum of Rotor Speed (RPM)');
+stem(harmonic_frequencies, harmonic_magnitudes, 'r', 'Marker', 'none', 'LineWidth', 2);
+xlabel('Frequency (RPM)');
+ylabel('Magnitude');
+title('Harmonic Analysis of Rotor Speed (RPM)');
 grid on;
 
-% Plot the time window used for calculating the FFT
-hold on;
-line([1 1] * start_time, ylim, 'Color', 'red', 'LineStyle', '--');
-line([1 1] * end_time, ylim, 'Color', 'red', 'LineStyle', '--');
-hold off;
-
 % Save the plot as PNG file
-print('-dpng', 'Squish_Plot_Frequency_Spectrum_Rotor_Speed.png');
+print('-dpng', 'Harmonic_Analysis_Rotor_Speed.png');
