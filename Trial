@@ -5,16 +5,12 @@ load('Messdaten.mat');
 start_time = 86.566; % Start time in seconds
 end_time = 86.616;   % End time in seconds
 
-% Find the indices corresponding to the specified time range
-start_index = find(frq_el_intern(:,2) >= start_time, 1, 'first');
-end_index = find(frq_el_intern(:,2) <= end_time, 1, 'last');
-
-% Extract signal within the specified time range
-Frequenz = frq_el_intern(start_index:end_index, 1);
-Zeit = frq_el_intern(start_index:end_index, 2);
+% Extract data within the specified time range
+time_range_indices = find(frq_el_intern(:,2) >= start_time & frq_el_intern(:,2) <= end_time);
+Frequenz = frq_el_intern(time_range_indices, 1);
 
 % Perform FFT
-Fs = 1 / (Zeit(2) - Zeit(1)); % Sampling frequency in Hz
+Fs = 1 / (frq_el_intern(2, 2) - frq_el_intern(1, 2)); % Sampling frequency in Hz
 N = length(Frequenz); % Length of the signal
 Frequenz_fft = abs(fft(Frequenz)); % Compute FFT
 Frequenz_fft = Frequenz_fft(1:N/2+1); % Consider only the positive frequencies
@@ -23,32 +19,18 @@ Frequenz_fft(2:end-1) = 2 * Frequenz_fft(2:end-1); % Take the magnitude and cons
 % Define frequencies corresponding to FFT bins
 frequencies = Fs * (0:(N/2)) / N; 
 
-% Set the frequency window of interest
-min_freq = 0;  % Minimum frequency to display
-max_freq = 1000; % Maximum frequency to display
-
-% Find indices corresponding to the desired frequency window
-idx_min = find(frequencies >= min_freq, 1, 'first');
-idx_max = find(frequencies <= max_freq, 1, 'last');
-
-% Plot original signal with respect to time
-figure;
-plot(Zeit, Frequenz*60/4);
-xlabel('Time (s)');
-ylabel('Rotation Signal (1/min)');
-title('Original Signal with respect to Time');
-grid on;
-
-% Save the plot as a PNG file
-print('-dpng', 'Aufgabe_Time.png');
+% Identify peaks (harmonics) in the frequency domain
+[peaks, peak_indices] = findpeaks(Frequenz_fft, 'MinPeakHeight', threshold);
 
 % Plot original signal with respect to frequency
 figure;
-plot(frequencies(idx_min:idx_max), Frequenz_fft(idx_min:idx_max));
+plot(frequencies, Frequenz_fft);
+hold on;
+plot(frequencies(peak_indices), peaks, 'r*');
 xlabel('Frequency (Hz)');
 ylabel('Amplitude');
-title('Original Signal with respect to Frequency (0-1000 Hz)');
+title('FFT of Signal within Plateau Region with Identified Peaks (Harmonics)');
 grid on;
 
 % Save the plot as a PNG file
-print('-dpng', 'Aufgabe_Frequency.png');
+print('-dpng', 'Harmonic_Analysis_Plateau.png');
