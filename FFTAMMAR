@@ -1,0 +1,15 @@
+load('Messdaten.mat');
+figure(1);clf;
+set(gcf,'Color',[1 1 1])
+% Erste Plateau
+Frequenz=frq_el_intern(864804:1020661,1); 
+Zeit= frq_el_intern(864804:1020661,2);
+plot(Zeit,Frequenz*60/4)
+%plot(Zeit,Frequenz)
+title('internes Drehgsignal')
+xlabel('Zeit in s')
+xlim([86.566 86.616])
+ylabel('internes Drehgsignal in 1/min')
+ylim([ 990 1010])
+
+%print -dpng Aufgabe.png
