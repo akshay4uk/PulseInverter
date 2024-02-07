@@ -1,0 +1,35 @@
+% Load data from Messdaten.mat
+load('Messdaten.mat');
+
+% Define the time range of interest
+start_time = 86.566; % Start time in seconds
+end_time = 86.616;   % End time in seconds
+
+% Find the indices corresponding to the specified time range
+start_index = find(frq_el_intern(:,2) >= start_time, 1, 'first');
+end_index = find(frq_el_intern(:,2) <= end_time, 1, 'last');
+
+% Extract signal within the specified time range
+Frequenz = frq_el_intern(start_index:end_index, 1);
+Zeit = frq_el_intern(start_index:end_index, 2);
+
+% Perform FFT
+Fs = 1 / (Zeit(2) - Zeit(1)); % Sampling frequency in Hz
+N = length(Frequenz); % Length of the signal
+Frequenz_fft = abs(fft(Frequenz)); % Compute FFT
+Frequenz_fft = Frequenz_fft(1:N/2+1); % Consider only the positive frequencies
+Frequenz_fft(2:end-1) = 2 * Frequenz_fft(2:end-1); % Take the magnitude and consider symmetry
+
+% Define frequencies corresponding to FFT bins
+frequencies = Fs * (0:(N/2)) / N; 
+
+% Plot FFT
+figure;
+plot(frequencies, Frequenz_fft);
+xlabel('Frequency (Hz)');
+ylabel('Amplitude');
+title('FFT of internal rotation signal within specified time range');
+grid on;
+
+% Save the plot as a PNG file
+print('-dpng', 'Aufgabe.png');
