@@ -5,30 +5,64 @@ load('Messdaten.mat');
 time_frq_el_intern = frq_el_intern(:, 2);
 frq_el_intern_data = frq_el_intern(:, 1);
 
-% Perform FFT (Fast Fourier Transform) to obtain frequency spectrum
-num_points = numel(frq_el_intern_data);
-Fs = 1 / (time_frq_el_intern(2) - time_frq_el_intern(1)); % Sampling frequency
-fft_result = fft(frq_el_intern_data);
-freq = linspace(-Fs/2, Fs/2, num_points); % Frequency vector for plotting
-fft_result = fftshift(fft_result);
-freq = fftshift(freq);
+% Define the time window
+timeWindowStart = 150;
+timeWindowEnd = 170;
 
-% Find peaks in the frequency spectrum
-[~, peak_indices] = sort(abs(fft_result), 'descend'); % Sort in descending order
-num_peaks = 5; % Number of peaks to detect
-peak_indices = peak_indices(1:num_peaks); % Select top 'num_peaks' peaks
-peak_frequencies = freq(peak_indices);
+% Find indices corresponding to the time window
+indices = find(time_frq_el_intern >= timeWindowStart & time_frq_el_intern <= timeWindowEnd);
 
-% Plot frequency spectrum
+% Extract data within the time window
+timeWindowData = frq_el_intern_data(indices);
+
+% Define the sampling frequency (inverse of the average time difference)
+
+Fs=10000;
+N=10;
+%Fs = 1 / mean(diff(time_frq_el_intern));
+
+% Perform FFT on the frequency data within the time window
+%N = length(timeWindowData);
+Y = fft(timeWindowData, N);
+frequencies = (0:N-1) * Fs / N;
+
+% Find peaks in the FFT plot
+[peak_amplitudes, peak_frequencies] = findpeaks(abs(Y), frequencies);
+
+% Define harmonic frequencies
+harmonics_freq = [50, 100, 150]; % Example harmonic frequencies
+
+% Find the closest frequencies to the harmonic frequencies
+[~, idx] = min(abs(frequencies.' - harmonics_freq));
+
+% Plot the original frequency data within the time window
 figure;
-plot(freq, abs(fft_result));
-title('Frequency Spectrum (Elektrische Rotorfrequenz)');
-xlabel('Frequency (Hz)');
-ylabel('Magnitude');
-xlim([0, Fs/2]); % Limit x-axis to positive frequencies
+subplot(3, 1, 1);
+plot(time_frq_el_intern, frq_el_intern_data, 'LineWidth', 1.5);
+title('Frequency Data Over Time');
+xlabel('Time (s)');
+ylabel('Frequency (Hz)');
 
-% Highlight detected peaks
+% Highlight the time window
 hold on;
-scatter(peak_frequencies, abs(fft_result(peak_indices)), 'r', 'filled');
-legend('Frequency Spectrum', 'Detected Peaks');
+plot([timeWindowStart, timeWindowEnd], [0, 0], 'r', 'LineWidth', 2);
 hold off;
+
+% Plot the FFT results within the time window using stem
+subplot(3, 1, 2);
+stem(frequencies, abs(Y), 'LineWidth', 1.5);
+xlabel('Frequency (Hz)');
+title('FFT Results Within Time Window');
+ylabel('Amplitude');
+
+subplot(3, 1, 2);
+stem(frequencies, abs(Y), 'LineWidth', 1.5);
+title('FFT Results Within Time Window');
+xlabel('Frequency (Hz)');
+ylabel('Amplitude');
+
+% Adjust subplot layout
+subplots = get(gcf, 'children');
+for i = 1:numel(subplots)
+    subplots(i).Position(3) = 0.85; % Adjust width of subplots
+end
