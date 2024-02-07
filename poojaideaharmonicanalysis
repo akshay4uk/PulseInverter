@@ -42,7 +42,6 @@ harmonic_magnitudes = Frequenz_fft_mag(harmonic_indices);
 
 % Plot FFT
 figure;
-subplot(3, 1, 1);
 plot(frequencies, Frequenz_fft_mag);
 hold on;
 stem(harmonic_frequencies, harmonic_magnitudes, 'r', 'Marker', 'none');
@@ -53,8 +52,11 @@ title('Frequency Spectrum with Harmonic Peaks');
 legend('FFT', 'Harmonics');
 grid on;
 
+% Save the plot as a PNG file
+print('-dpng', 'Harmonic_Analysis.png');
+
 % Plot spectral density
-subplot(3, 1, 2);
+figure;
 [p, f] = periodogram(Frequenz, [], N, Fs, 'power');
 plot(f, p);
 xlabel('Frequency (Hz)');
@@ -62,8 +64,11 @@ ylabel('Power/Frequency (dB/Hz)');
 title('Spectral Density');
 grid on;
 
+% Save the plot as a PNG file
+print('-dpng', 'Spectral_Density.png');
+
 % Plot RPM of the motor
-subplot(3, 1, 3);
+figure;
 plot(Zeit, RPM);
 xlabel('Time (s)');
 ylabel('RPM');
@@ -71,4 +76,4 @@ title('Motor RPM');
 grid on;
 
 % Save the plot as a PNG file
-print('-dpng', 'Motor_Analysis.png');
+print('-dpng', 'Motor_RPM.png');
