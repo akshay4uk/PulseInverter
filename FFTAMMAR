@@ -1,15 +1,42 @@
+% Load data from Messdaten.mat
 load('Messdaten.mat');
-figure(1);clf;
-set(gcf,'Color',[1 1 1])
-% Erste Plateau
-Frequenz=frq_el_intern(864804:1020661,1); 
-Zeit= frq_el_intern(864804:1020661,2);
-plot(Zeit,Frequenz*60/4)
-%plot(Zeit,Frequenz)
-title('internes Drehgsignal')
-xlabel('Zeit in s')
-xlim([86.566 86.616])
-ylabel('internes Drehgsignal in 1/min')
-ylim([ 990 1010])
 
-%print -dpng Aufgabe.png
+% Define sampling frequency
+Fs = 1/(frq_el_intern(2,2)-frq_el_intern(1,2)); % Sampling frequency in Hz
+
+% Extract signal
+Frequenz = frq_el_intern(864804:1020661,1); 
+
+% Perform FFT
+N = length(Frequenz); % Length of the signal
+Frequenz_fft = abs(fft(Frequenz)); % Compute FFT
+Frequenz_fft = Frequenz_fft(1:N/2+1); % Consider only the positive frequencies
+Frequenz_fft(2:end-1) = 2*Frequenz_fft(2:end-1); % Take the magnitude and consider symmetry
+
+% Define frequencies corresponding to FFT bins
+frequencies = Fs*(0:(N/2))/N; 
+
+% Plot FFT
+figure;
+plot(frequencies, Frequenz_fft);
+xlabel('Frequency (Hz)');
+ylabel('Amplitude');
+title('FFT of internal rotation signal');
+grid on;
+
+% Find the index corresponding to 66 Hz
+[~, idx_66hz] = min(abs(frequencies - 66)); % Find the index corresponding to 66 Hz
+
+% Print out the magnitude of the FFT at 66 Hz
+disp(['Magnitude of FFT at 66 Hz: ', num2str(Frequenz_fft(idx_66hz))]);
+
+% Plot the difference between 66 Hz and our signal FFT
+figure;
+plot(frequencies, Frequenz_fft - Frequenz_fft(idx_66hz));
+xlabel('Frequency (Hz)');
+ylabel('Difference in amplitude');
+title('Difference between 66 Hz and internal rotation signal FFT');
+grid on;
+
+% Save the plot as a PNG file
+print('-dpng', 'Aufgabe.png');
