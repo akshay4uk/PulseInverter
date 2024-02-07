@@ -28,45 +28,24 @@ for i = 1:length(modes)
     amp_modes(i) = P(idx_mode) * 2; % Amplitude for the mode (accounting for symmetric spectrum)
 end
 
-% Plot combined graph
+% Plot each harmonic mode in separate plots
 figure;
 
-% Original signal plot
-subplot(3,1,1);
-plot(Zeit, Rotar_speed, 'r', 'LineWidth', 1.5);
-title('Original Rotor Speed Signal');
-xlabel('Time (s)');
-ylabel('Rotor Speed (1/min)');
-xlim([86.566 86.616]);
-ylim([990 1010]);
-grid on;
+for i = 1:length(modes)
+    subplot(length(modes),1,i);
+    stem(modes(i), amp_modes(i), 'Marker', 'o', 'LineWidth', 1.5);
+    title(['Harmonic Analysis - ' num2str(modes(i)) 'x Mode']);
+    xlabel('Harmonic Mode');
+    ylabel('Amplitude');
+    xlim([0.5 4.5]);
+    grid on;
+end
 
-% FFT plot
-subplot(3,1,2);
-plot(f, P(1:N/2+1), 'b', 'LineWidth', 1.5);
-title('FFT of Rotor Speed');
-xlabel('Frequency (Hz)');
-ylabel('Magnitude');
-xlim([0 10]); % Assuming interest in frequencies up to 10 Hz
-grid on;
-
-% Harmonic analysis plot
-subplot(3,1,3);
+% Combine all harmonic modes into one plot
+figure;
 stem(modes, amp_modes, 'Marker', 'o', 'LineWidth', 1.5);
-title('Harmonic Analysis of Rotor Speed');
+title('Combined Harmonic Analysis');
 xlabel('Harmonic Mode');
 ylabel('Amplitude');
 xlim([0.5 4.5]);
 grid on;
-
-% Change marker style and color for each harmonic mode
-markers = {'o', 's', 'd', '^'};
-colors = {'g', 'm', 'c', 'k'};
-for i = 1:length(modes)
-    hold on;
-    stem(modes(i), amp_modes(i), 'Marker', markers{i}, 'Color', colors{i}, 'LineWidth', 1.5);
-    hold off;
-end
-
-% Set legend for harmonic analysis plot
-legend({'1x', '2x', '3x', '4x'}, 'Location', 'best');
