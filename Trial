@@ -21,19 +21,20 @@ Frequenz_fft_mag = abs(Frequenz_fft) / N; % Normalize by the number of samples
 % Define frequencies corresponding to FFT bins
 frequencies = Fs * (-N/2:N/2-1) / N;
 
-% Set the frequency window of interest
-min_freq = 0;  % Minimum frequency to display
-max_freq = 1000; % Maximum frequency to display
+% Set the fundamental frequency
+fundamental_frequency = 66; % Hz
 
-% Find indices corresponding to the desired frequency window
-idx_min = find(frequencies >= min_freq, 1, 'first');
-idx_max = find(frequencies <= max_freq, 1, 'last');
+% Calculate harmonic frequencies
+harmonic_frequencies = fundamental_frequency * (0:7); % Modes 0 to 7
+
+% Find indices corresponding to the harmonic frequencies
+harmonic_indices = zeros(1, length(harmonic_frequencies));
+for i = 1:length(harmonic_frequencies)
+    [~, harmonic_indices(i)] = min(abs(frequencies - harmonic_frequencies(i)));
+end
 
 % Perform harmonic analysis
-threshold = 0.1 * max(Frequenz_fft_mag); % Adjust the threshold as needed
-[peaks, peak_indices] = findpeaks(Frequenz_fft_mag(idx_min:idx_max), 'MinPeakHeight', threshold);
-harmonic_frequencies = frequencies(idx_min+peak_indices-1);
-harmonic_magnitudes = peaks;
+harmonic_magnitudes = Frequenz_fft_mag(harmonic_indices);
 
 % Plot original rotor signal
 figure;
@@ -62,7 +63,7 @@ grid on;
 
 % Highlight identified harmonic peaks
 hold on;
-plot(harmonic_frequencies, harmonic_magnitudes, 'r*');
+stem(harmonic_frequencies, harmonic_magnitudes, 'r', 'Marker', 'none');
 hold off;
 
 % Plot the noisy signal
