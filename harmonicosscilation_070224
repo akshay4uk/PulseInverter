@@ -1,0 +1,34 @@
+% Load data from Messdaten.mat
+load('Messdaten.mat');
+
+% Extract Elektrische Rotorfrequenz data
+time_frq_el_intern = frq_el_intern(:, 2);
+frq_el_intern_data = frq_el_intern(:, 1);
+
+% Perform FFT (Fast Fourier Transform) to obtain frequency spectrum
+num_points = numel(frq_el_intern_data);
+Fs = 1 / (time_frq_el_intern(2) - time_frq_el_intern(1)); % Sampling frequency
+fft_result = fft(frq_el_intern_data);
+freq = linspace(-Fs/2, Fs/2, num_points); % Frequency vector for plotting
+fft_result = fftshift(fft_result);
+freq = fftshift(freq);
+
+% Find peaks in the frequency spectrum
+[~, peak_indices] = sort(abs(fft_result), 'descend'); % Sort in descending order
+num_peaks = 5; % Number of peaks to detect
+peak_indices = peak_indices(1:num_peaks); % Select top 'num_peaks' peaks
+peak_frequencies = freq(peak_indices);
+
+% Plot frequency spectrum
+figure;
+plot(freq, abs(fft_result));
+title('Frequency Spectrum (Elektrische Rotorfrequenz)');
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+xlim([0, Fs/2]); % Limit x-axis to positive frequencies
+
+% Highlight detected peaks
+hold on;
+scatter(peak_frequencies, abs(fft_result(peak_indices)), 'r', 'filled');
+legend('Frequency Spectrum', 'Detected Peaks');
+hold off;
