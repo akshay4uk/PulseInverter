@@ -33,23 +33,22 @@ idx_max = find(frequencies <= max_freq, 1, 'last');
 
 % Plot original signal with respect to time
 figure;
-subplot(2,1,1);
 plot(Zeit, Frequenz*60/4);
 xlabel('Time (s)');
 ylabel('Rotation Signal (1/min)');
 title('Original Signal with respect to Time');
 grid on;
 
+% Save the plot as a PNG file
+print('-dpng', 'Aufgabe_Time.png');
+
 % Plot original signal with respect to frequency
-subplot(2,1,2);
+figure;
 plot(frequencies(idx_min:idx_max), Frequenz_fft(idx_min:idx_max));
 xlabel('Frequency (Hz)');
 ylabel('Amplitude');
 title('Original Signal with respect to Frequency (0-1000 Hz)');
 grid on;
 
-% Adjust the spacing between subplots
-sgtitle('Comparison of Original Signal in Time and Frequency Domain');
-
 % Save the plot as a PNG file
-print('-dpng', 'Aufgabe_Time_vs_Frequency.png');
+print('-dpng', 'Aufgabe_Frequency.png');
