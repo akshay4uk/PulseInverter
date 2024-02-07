@@ -16,24 +16,22 @@ indices = find(time_frq_el_intern >= timeWindowStart & time_frq_el_intern <= tim
 timeWindowData = frq_el_intern_data(indices);
 
 % Define the sampling frequency (inverse of the average time difference)
-
-Fs=10000;
-N=10;
-%Fs = 1 / mean(diff(time_frq_el_intern));
+Fs = 1 / mean(diff(time_frq_el_intern));
 
 % Perform FFT on the frequency data within the time window
-%N = length(timeWindowData);
+N = length(timeWindowData);
 Y = fft(timeWindowData, N);
 frequencies = (0:N-1) * Fs / N;
 
 % Find peaks in the FFT plot
 [peak_amplitudes, peak_frequencies] = findpeaks(abs(Y), frequencies);
 
-% Define harmonic frequencies
-harmonics_freq = [50, 100, 150]; % Example harmonic frequencies
+% Find the dominant frequency (fundamental frequency)
+[~, fundamental_index] = max(abs(Y));
+fundamental_frequency = frequencies(fundamental_index);
 
-% Find the closest frequencies to the harmonic frequencies
-[~, idx] = min(abs(frequencies.' - harmonics_freq));
+% Define harmonic frequencies (2nd to 5th harmonics)
+harmonics_freq = fundamental_frequency * (2:5);
 
 % Plot the original frequency data within the time window
 figure;
@@ -48,21 +46,30 @@ hold on;
 plot([timeWindowStart, timeWindowEnd], [0, 0], 'r', 'LineWidth', 2);
 hold off;
 
-% Plot the FFT results within the time window using stem
+% Plot the FFT results within the time window
 subplot(3, 1, 2);
 stem(frequencies, abs(Y), 'LineWidth', 1.5);
 xlabel('Frequency (Hz)');
 title('FFT Results Within Time Window');
 ylabel('Amplitude');
 
-subplot(3, 1, 2);
+% Plot peaks
+hold on;
+stem(peak_frequencies, peak_amplitudes, 'r', 'Marker', 'x', 'LineWidth', 1.5);
+hold off;
+
+% Plot harmonic frequencies
+subplot(3, 1, 3);
 stem(frequencies, abs(Y), 'LineWidth', 1.5);
-title('FFT Results Within Time Window');
 xlabel('Frequency (Hz)');
+title('Harmonic Frequencies');
 ylabel('Amplitude');
 
-% Adjust subplot layout
-subplots = get(gcf, 'children');
-for i = 1:numel(subplots)
-    subplots(i).Position(3) = 0.85; % Adjust width of subplots
-end
+% Plot peaks
+hold on;
+stem(harmonics_freq, abs(Y(harmonics_freq)), 'g', 'Marker', 'o', 'LineWidth', 1.5);
+hold off;
+
+% Display fundamental frequency and harmonic frequencies
+fprintf('Fundamental Frequency: %.2f Hz\n', fundamental_frequency);
+fprintf('Harmonic Frequencies: %s\n', num2str(harmonics_freq));
