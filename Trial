@@ -23,9 +23,17 @@ Frequenz_fft(2:end-1) = 2 * Frequenz_fft(2:end-1); % Take the magnitude and cons
 % Define frequencies corresponding to FFT bins
 frequencies = Fs * (0:(N/2)) / N; 
 
-% Plot FFT
+% Set the frequency window of interest
+min_freq = 0;  % Minimum frequency to display
+max_freq = 20; % Maximum frequency to display
+
+% Find indices corresponding to the desired frequency window
+idx_min = find(frequencies >= min_freq, 1, 'first');
+idx_max = find(frequencies <= max_freq, 1, 'last');
+
+% Plot FFT within the specified frequency range
 figure;
-plot(frequencies, Frequenz_fft);
+plot(frequencies(idx_min:idx_max), Frequenz_fft(idx_min:idx_max));
 xlabel('Frequency (Hz)');
 ylabel('Amplitude');
 title('FFT of internal rotation signal within specified time range');
