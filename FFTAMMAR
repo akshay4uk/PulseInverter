@@ -30,6 +30,8 @@ end
 
 % Plot combined graph
 figure;
+
+% Original signal plot
 subplot(3,1,1);
 plot(Zeit, Rotar_speed, 'r', 'LineWidth', 1.5);
 title('Original Rotor Speed Signal');
@@ -39,6 +41,7 @@ xlim([86.566 86.616]);
 ylim([990 1010]);
 grid on;
 
+% FFT plot
 subplot(3,1,2);
 plot(f, P(1:N/2+1), 'b', 'LineWidth', 1.5);
 title('FFT of Rotor Speed');
@@ -47,21 +50,18 @@ ylabel('Magnitude');
 xlim([0 10]); % Assuming interest in frequencies up to 10 Hz
 grid on;
 
+% Harmonic analysis plot
 subplot(3,1,3);
-stem(modes*60, amp_modes, 'Marker', 'o', 'LineWidth', 1.5);
+bar(modes, amp_modes, 0.5, 'r');
 title('Harmonic Analysis of Rotor Speed');
-xlabel('Frequency (Hz)');
+xlabel('Harmonic Mode');
 ylabel('Amplitude');
-xlim([0 250]); % Assuming interest in frequencies up to 4x fundamental frequency
+xlim([0.5 4.5]);
 grid on;
 
-% Change marker style and color for each harmonic mode
-markers = {'o', 's', 'd', '^'};
-colors = {'g', 'm', 'c', 'k'};
-for i = 1:length(modes)
-    hold on;
-    stem(modes(i)*60, amp_modes(i), 'Marker', markers{i}, 'Color', colors{i}, 'LineWidth', 1.5);
-    hold off;
-end
+% Change axis ticks for harmonic analysis plot
+xticks(modes);
+xticklabels({'1x', '2x', '3x', '4x'});
 
-legend('1x', '2x', '3x', '4x', 'Location', 'best');
+% Adjust subplot spacing
+sgtitle('Rotor Speed Analysis', 'FontWeight', 'bold'); % Add title for the entire figure
