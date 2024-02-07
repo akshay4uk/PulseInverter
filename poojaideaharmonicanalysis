@@ -13,37 +13,54 @@ Zeit = frq_el_intern(time_range_indices, 2); % Extract time data
 % Specify the pulses per revolution
 pulses_per_revolution = 4;
 
-% Calculate rotor speed (RPM) of the motor
-RPM = (Frequenz * 60) / pulses_per_revolution;
+% Define fundamental frequencies for each case
+fundamental_frequencies = [66, 200, 400, 600, 5]; % Hz
+num_cases = length(fundamental_frequencies);
 
-% Define fundamental frequency (1x)
-fundamental_frequency = mean(RPM);
-
-% Define harmonic frequencies (w, 2w, 3w, 4w, 5w, 6w)
+% Initialize arrays to store harmonic magnitudes for each case
 num_harmonics = 6;
-harmonic_frequencies = fundamental_frequency * (1:num_harmonics);
+harmonic_magnitudes_all = zeros(num_cases, num_harmonics);
 
-% Perform harmonic analysis
-harmonic_magnitudes = zeros(1, num_harmonics);
-for i = 1:num_harmonics
-    harmonic_magnitudes(i) = max(abs(RPM - i * fundamental_frequency));
+% Perform harmonic analysis for each case
+for c = 1:num_cases
+    % Calculate rotor speed (RPM) of the motor for current case
+    RPM = (Frequenz * 60) / pulses_per_revolution;
+
+    % Define fundamental frequency for current case
+    fundamental_frequency = fundamental_frequencies(c);
+
+    % Define harmonic frequencies for current case
+    harmonic_frequencies = fundamental_frequency * (1:num_harmonics);
+
+    % Perform harmonic analysis for current case
+    for i = 1:num_harmonics
+        harmonic_magnitudes_all(c, i) = max(abs(RPM - i * fundamental_frequency));
+    end
 end
 
-% Display harmonic analysis results in tabular format
+% Display harmonic analysis results for each case
 disp('Harmonic Analysis Results:');
 disp('--------------------------');
-disp('Harmonic   Frequency (RPM)   Magnitude');
-for i = 1:num_harmonics
-    fprintf('%8d \t %10.2f \t %10.4f\n', i, harmonic_frequencies(i), harmonic_magnitudes(i));
+disp('Case   Harmonic   Frequency (RPM)   Magnitude');
+for c = 1:num_cases
+    for i = 1:num_harmonics
+        fprintf('%d \t %d \t %10.2f \t %10.4f\n', c, i, harmonic_frequencies(i), harmonic_magnitudes_all(c, i));
+    end
 end
 
-% Plot the harmonic analysis results
+% Plot the harmonic analysis results for each case
 figure;
-stem(harmonic_frequencies, harmonic_magnitudes, 'r', 'Marker', 'none', 'LineWidth', 2);
+hold on;
+colors = {'r', 'g', 'b', 'm', 'c'};
+for c = 1:num_cases
+    plot(harmonic_frequencies, harmonic_magnitudes_all(c, :), 'Color', colors{c}, 'Marker', 'o', 'LineStyle', 'none', 'DisplayName', ['Case ', num2str(c)]);
+end
 xlabel('Frequency (RPM)');
 ylabel('Magnitude');
-title('Harmonic Analysis of Rotor Speed (RPM)');
+title('Harmonic Analysis of Rotor Speed (RPM) for Different Fundamental Frequencies');
 grid on;
+legend('Location', 'best');
+hold off;
 
 % Save the plot as PNG file
-print('-dpng', 'Harmonic_Analysis_Rotor_Speed.png');
+print('-dpng', 'Harmonic_Analysis_Rotor_Speed_Cases.png');
