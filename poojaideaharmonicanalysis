@@ -10,7 +10,7 @@ time_range_indices = find(frq_el_intern(:,2) >= start_time & frq_el_intern(:,2) 
 Frequenz = frq_el_intern(time_range_indices, 1);
 Zeit = frq_el_intern(time_range_indices, 2);
 
-% Calculate RPM of the motor
+% Calculate rotor speed (RPM) of the motor
 RPM = (Frequenz * 60) / 4;
 
 % Perform FFT
@@ -29,7 +29,7 @@ fundamental_frequency = 66; % Hz
 
 % Calculate harmonic frequencies
 num_harmonics = 7; % Number of harmonics to analyze
-harmonic_frequencies = fundamental_frequency * (0:num_harmonics); % Include mode 0
+harmonic_frequencies = fundamental_frequency * (1:num_harmonics); % Exclude mode 0
 
 % Find indices corresponding to the harmonic frequencies
 harmonic_indices = zeros(1, length(harmonic_frequencies));
@@ -40,7 +40,15 @@ end
 % Perform harmonic analysis
 harmonic_magnitudes = Frequenz_fft_mag(harmonic_indices);
 
-% Plot FFT with harmonics
+% Display harmonic analysis results in tabular format
+disp('Harmonic Analysis Results:');
+disp('--------------------------');
+disp('Harmonic   Frequency (Hz)   Magnitude');
+for i = 1:length(harmonic_frequencies)
+    fprintf('%8d \t %10.2f \t %10.4f\n', i, harmonic_frequencies(i), harmonic_magnitudes(i));
+end
+
+% Plot the frequency spectrum with harmonic peaks
 figure;
 plot(frequencies, Frequenz_fft_mag);
 hold on;
@@ -49,31 +57,18 @@ hold off;
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
 title('Frequency Spectrum with Harmonic Peaks');
-legend('FFT', 'Harmonics');
 grid on;
 
 % Save the plot as a PNG file
-print('-dpng', 'Frequency_Spectrum_Harmonics.png');
+print('-dpng', 'Frequency_Spectrum_Harmonic_Analysis.png');
 
-% Plot spectral density
-figure;
-[p, f] = periodogram(Frequenz, [], N, Fs, 'power');
-plot(f, p);
-xlabel('Frequency (Hz)');
-ylabel('Power/Frequency (dB/Hz)');
-title('Spectral Density');
-grid on;
-
-% Save the plot as a PNG file
-print('-dpng', 'Spectral_Density.png');
-
-% Plot RPM of the motor
+% Plot rotor speed (RPM) of the motor
 figure;
 plot(Zeit, RPM);
 xlabel('Time (s)');
 ylabel('RPM');
-title('Motor RPM');
+title('Rotor Speed (RPM)');
 grid on;
 
 % Save the plot as a PNG file
-print('-dpng', 'Motor_RPM.png');
+print('-dpng', 'Rotor_Speed.png');
