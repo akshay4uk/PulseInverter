@@ -7,14 +7,17 @@ Zeit = frq_el_intern(864804:1020661, 2);
 % Calculate rotor speed
 Rotar_speed = 60 * Frequenz / 4;
 
-% Generate time vector
+% Generate 60Hz sine wave
 Fs = 1 / (Zeit(2) - Zeit(1)); % Sampling frequency
-N = length(Rotar_speed); % Length of signal
-t = (0:N-1) / Fs; % Time vector
+t = Zeit(1):1/Fs:Zeit(end); % Time vector
+f_60hz = 60; % Frequency of 60Hz
+x_60hz = sin(2*pi*f_60hz*t);
 
 % Perform FFT
-Y = fft(Rotar_speed);
+N = length(Rotar_speed); % Length of signal
+Y = fft(Rotar_speed, N); % FFT calculation
 f = Fs*(0:(N/2))/N; % Frequency vector
+P = abs(Y/N); % Magnitude of the FFT
 
 % Harmonic analysis for different modes
 modes = [1 2 3 4]; % Modes 1x, 2x, 3x, 4x
@@ -22,31 +25,42 @@ amp_modes = zeros(length(modes), 1);
 for i = 1:length(modes)
     freq_mode = modes(i) * 60; % Frequency for the mode
     idx_mode = round(freq_mode / (Fs/N)); % Index corresponding to the frequency
-    amp_modes(i) = abs(Y(idx_mode)) / N; % Amplitude for the mode
+    amp_modes(i) = P(idx_mode) * 2; % Amplitude for the mode (accounting for symmetric spectrum)
 end
 
-% Plot FFT and harmonic analysis
+% Plot combined graph
 figure;
-subplot(2,1,1);
-plot(f, 2/N*abs(Y(1:N/2+1)), 'b');
+subplot(3,1,1);
+plot(Zeit, Rotar_speed, 'r', 'LineWidth', 1.5);
+title('Original Rotor Speed Signal');
+xlabel('Time (s)');
+ylabel('Rotor Speed (1/min)');
+xlim([86.566 86.616]);
+ylim([990 1010]);
+grid on;
+
+subplot(3,1,2);
+plot(f, P(1:N/2+1), 'b', 'LineWidth', 1.5);
 title('FFT of Rotor Speed');
 xlabel('Frequency (Hz)');
-ylabel('Amplitude');
+ylabel('Magnitude');
 xlim([0 10]); % Assuming interest in frequencies up to 10 Hz
+grid on;
+
+subplot(3,1,3);
+stem(modes*60, amp_modes, 'r', 'Marker', 'o', 'LineWidth', 1.5);
+title('Harmonic Analysis of Rotor Speed');
+xlabel('Frequency (Hz)');
+ylabel('Amplitude');
+xlim([0 250]); % Assuming interest in frequencies up to 4x fundamental frequency
 grid on;
 
 % Mark frequencies of interest
 for i = 1:length(modes)
     freq_mode = modes(i) * 60;
     hold on;
-    plot([freq_mode freq_mode], ylim, 'r--');
+    plot([freq_mode freq_mode], ylim, 'g--', 'LineWidth', 1.2);
     hold off;
 end
 
-subplot(2,1,2);
-stem(modes, amp_modes, 'b');
-title('Harmonic Analysis of Rotor Speed');
-xlabel('Mode');
-ylabel('Amplitude');
-xlim([0.5 4.5]);
-grid on;
+legend('1x', '2x', '3x', '4x');
