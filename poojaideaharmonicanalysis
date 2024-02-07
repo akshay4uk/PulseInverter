@@ -26,9 +26,6 @@ RPM_fft_mag = abs(RPM_fft) / N; % Normalize by the number of samples
 % Define frequencies corresponding to FFT bins
 frequencies = Fs * (-N/2:N/2-1) / N;
 
-% Calculate spectral density
-[spectral_density, spectral_density_freq] = periodogram(RPM, [], N, Fs, 'power');
-
 % Define fundamental frequency (1x)
 fundamental_frequency = mean(RPM);
 
@@ -50,31 +47,22 @@ for i = 1:num_harmonics
     fprintf('%8d \t %10.2f \t %10.4f\n', i, harmonic_frequencies(i), harmonic_magnitudes(i));
 end
 
-% Plot the frequency spectrum with harmonic peaks
+% Plot the squish plot for the frequency spectrum with harmonic peaks
 figure;
-plot(frequencies, RPM_fft_mag);
+plot(frequencies, 10*log10(RPM_fft_mag));
 xlabel('Frequency (Hz)');
-ylabel('Magnitude');
-title('Frequency Spectrum of Rotor Speed (RPM)');
+ylabel('Magnitude (dB)');
+title('Squish Plot of Frequency Spectrum of Rotor Speed (RPM)');
 grid on;
 
-% Plot spectral density
+% Plot the squish plot for the harmonic analysis results
 figure;
-plot(spectral_density_freq, spectral_density);
-xlabel('Frequency (Hz)');
-ylabel('Power/Frequency (dB/Hz)');
-title('Spectral Density of Rotor Speed (RPM)');
-grid on;
-
-% Plot the harmonic analysis results
-figure;
-stem(harmonic_frequencies, harmonic_magnitudes, 'r', 'Marker', 'none');
+stem(harmonic_frequencies, 10*log10(harmonic_magnitudes), 'r', 'Marker', 'none');
 xlabel('Frequency (RPM)');
-ylabel('Magnitude');
-title('Harmonic Analysis of Rotor Speed (RPM)');
+ylabel('Magnitude (dB)');
+title('Squish Plot of Harmonic Analysis of Rotor Speed (RPM)');
 grid on;
 
 % Save the plots as PNG files
-print('-dpng', 'Frequency_Spectrum_Rotor_Speed.png');
-print('-dpng', 'Spectral_Density_Rotor_Speed.png');
-print('-dpng', 'Harmonic_Analysis_Rotor_Speed.png');
+print('-dpng', 'Squish_Plot_Frequency_Spectrum_Rotor_Speed.png');
+print('-dpng', 'Squish_Plot_Harmonic_Analysis_Rotor_Speed.png');
