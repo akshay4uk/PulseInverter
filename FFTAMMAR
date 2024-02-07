@@ -1,3 +1,4 @@
+
 load('Messdaten.mat');
 
 % Extract data
@@ -7,29 +8,48 @@ Zeit = frq_el_intern(864804:1020661, 2);
 % Calculate rotor speed
 Rotar_speed = 60 * Frequenz / 4;
 
-% Perform FFT
-Fs = 1 / (Zeit(2) - Zeit(1)); % Sampling frequency
-N = length(Rotar_speed); % Length of signal
-Y = fft(Rotar_speed);
-f = Fs*(0:(N/2))/N; % Frequency vector
+% Generate 60Hz sine wave
+Fs = 1000; % Sampling frequency
+t = Zeit(1):1/Fs:Zeit(end); % Time vector
+f_60hz = 60; % Frequency of 60Hz
+x_60hz = sin(2*pi*f_60hz*t);
 
-% Plot original signal and FFT
+% Perform FFT
+Y = fft(Rotar_speed);
+N = length(Rotar_speed);
+f = Fs*(0:(N/2))/N;
+
+% Harmonic analysis
+harmonics = 7;
+amp = zeros(harmonics, 1);
+for i = 1:harmonics
+    amp(i) = abs(Y(i)) / N;
+end
+
+% Plot original signal and 60Hz sine wave
 figure;
-subplot(2,1,1);
-plot(Zeit, Frequenz, 'b');
-hold on;
-plot(Zeit, Rotar_speed, 'r');
+subplot(3,1,1);
+plot(Zeit, Frequenz, 'b', Zeit, Rotar_speed, 'r');
 title('Frequency and Rotor Speed');
 xlabel('Time (s)');
 ylabel('Frequency (1/min)');
 legend('Frequency', 'Rotor Speed');
 xlim([86.566 86.616]);
 ylim([990 1010]);
-hold off;
 
-subplot(2,1,2);
-plot(f, 2/N*abs(Y(1:N/2+1)), 'b');
-title('FFT of Rotor Speed');
+subplot(3,1,2);
+plot(t, x_60hz, 'g', Zeit, Rotar_speed, 'r');
+title('60Hz Sine Wave and Rotor Speed');
+xlabel('Time (s)');
+ylabel('Amplitude');
+legend('60Hz Sine Wave', 'Rotor Speed');
+xlim([86.566 86.616]);
+ylim([-1.2 1.2]);
+
+% Plot FFT and harmonic analysis
+subplot(3,1,3);
+stem(f(1:harmonics), amp, 'b');
+title('FFT and Harmonic Analysis of Rotor Speed');
 xlabel('Frequency (Hz)');
 ylabel('Amplitude');
 xlim([0 10]); % Assuming interest in frequencies up to 10 Hz
@@ -39,3 +59,4 @@ grid on;
 hold on;
 plot([60 60], ylim, 'r--');
 hold off;
+
