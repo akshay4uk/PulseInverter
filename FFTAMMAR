@@ -20,12 +20,16 @@ f = Fs*(0:(N/2))/N; % Frequency vector
 P = abs(Y/N); % Magnitude of the FFT
 
 % Harmonic analysis for different modes
-modes = [1 2 3 4]; % Modes 1x, 2x, 3x, 4x
+modes = [0 1 2 3 4]; % Modes 0x, 1x, 2x, 3x, 4x
 amp_modes = zeros(length(modes), 1);
 for i = 1:length(modes)
-    freq_mode = modes(i) * 60; % Frequency for the mode
-    idx_mode = round(freq_mode / (Fs/N)); % Index corresponding to the frequency
-    amp_modes(i) = P(idx_mode) * 2; % Amplitude for the mode (accounting for symmetric spectrum)
+    if modes(i) == 0
+        amp_modes(i) = P(1) * 2; % Amplitude for DC component
+    else
+        freq_mode = modes(i) * 60; % Frequency for the mode
+        idx_mode = round(freq_mode / (Fs/N)); % Index corresponding to the frequency
+        amp_modes(i) = P(idx_mode) * 2; % Amplitude for the mode (accounting for symmetric spectrum)
+    end
 end
 
 % Plot each harmonic mode in separate plots
@@ -37,7 +41,7 @@ for i = 1:length(modes)
     title(['Harmonic Analysis - ' num2str(modes(i)) 'x Mode']);
     xlabel('Harmonic Mode');
     ylabel('Amplitude');
-    xlim([0.5 4.5]);
+    xlim([-0.5 4.5]);
     grid on;
 end
 
@@ -47,5 +51,21 @@ stem(modes, amp_modes, 'Marker', 'o', 'LineWidth', 1.5);
 title('Combined Harmonic Analysis');
 xlabel('Harmonic Mode');
 ylabel('Amplitude');
-xlim([0.5 4.5]);
+xlim([-0.5 4.5]);
 grid on;
+Inklusive Modus 0 (Gleichstromkomponente):
+
+Modus 0 repräsentiert die Gleichstromkomponente oder den Durchschnittswert des Signals.
+Die Einbeziehung des Modus 0 ermöglicht es uns, die Amplitude der Gleichstromkomponente zusammen mit den harmonischen Modi zu analysieren.
+Berechnung der Amplitude für Modus 0:
+
+Im FFT-Ergebnis repräsentiert die Amplitude am Index 1 die Gleichstromkomponente.
+Um die Amplitude für Modus 0 zu berechnen, nehmen wir einfach das Zweifache der Amplitude am Index 1. Dies berücksichtigt die symmetrische Spektrumeigenschaft von reellen Signalen im FFT-Ergebnis.
+Aktualisierung des Modi-Arrays:
+
+Das modes-Array wird aktualisiert, um Modus 0 zusammen mit den harmonischen Modi (1x, 2x, 3x, 4x) zu enthalten.
+Schleife durch Modi:
+
+Beim Plotten der harmonischen Analyse durchlaufen wir jeden Modus im modes-Array.
+Für Modus 0 verwenden wir direkt die Amplitude, die aus dem FFT-Ergebnis berechnet wurde.
+Für harmonische Modi (1x, 2x, 3x, 4x) berechnen wir ihre jeweiligen Frequenzen und finden die entsprechende Amplitude aus dem FFT-Ergebnis. Wir verdoppeln dann diese Amplitude, um die symmetrische Spektrumeigenschaft zu berücksichtigen.
