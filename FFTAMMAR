@@ -1,42 +1,41 @@
-% Load data from Messdaten.mat
 load('Messdaten.mat');
 
-% Define sampling frequency
-Fs = 1/(frq_el_intern(2,2)-frq_el_intern(1,2)); % Sampling frequency in Hz
+% Extract data
+Frequenz = frq_el_intern(864804:1020661, 1);
+Zeit = frq_el_intern(864804:1020661, 2);
 
-% Extract signal
-Frequenz = frq_el_intern(864804:1020661,1); 
+% Calculate rotor speed
+Rotar_speed = 60 * Frequenz / 4;
 
 % Perform FFT
-N = length(Frequenz); % Length of the signal
-Frequenz_fft = abs(fft(Frequenz)); % Compute FFT
-Frequenz_fft = Frequenz_fft(1:N/2+1); % Consider only the positive frequencies
-Frequenz_fft(2:end-1) = 2*Frequenz_fft(2:end-1); % Take the magnitude and consider symmetry
+Fs = 1 / (Zeit(2) - Zeit(1)); % Sampling frequency
+N = length(Rotar_speed); % Length of signal
+Y = fft(Rotar_speed);
+f = Fs*(0:(N/2))/N; % Frequency vector
 
-% Define frequencies corresponding to FFT bins
-frequencies = Fs*(0:(N/2))/N; 
-
-% Plot FFT
+% Plot original signal and FFT
 figure;
-plot(frequencies, Frequenz_fft);
+subplot(2,1,1);
+plot(Zeit, Frequenz, 'b');
+hold on;
+plot(Zeit, Rotar_speed, 'r');
+title('Frequency and Rotor Speed');
+xlabel('Time (s)');
+ylabel('Frequency (1/min)');
+legend('Frequency', 'Rotor Speed');
+xlim([86.566 86.616]);
+ylim([990 1010]);
+hold off;
+
+subplot(2,1,2);
+plot(f, 2/N*abs(Y(1:N/2+1)), 'b');
+title('FFT of Rotor Speed');
 xlabel('Frequency (Hz)');
 ylabel('Amplitude');
-title('FFT of internal rotation signal');
+xlim([0 10]); % Assuming interest in frequencies up to 10 Hz
 grid on;
 
-% Find the index corresponding to 66 Hz
-[~, idx_66hz] = min(abs(frequencies - 66)); % Find the index corresponding to 66 Hz
-
-% Print out the magnitude of the FFT at 66 Hz
-disp(['Magnitude of FFT at 66 Hz: ', num2str(Frequenz_fft(idx_66hz))]);
-
-% Plot the difference between 66 Hz and our signal FFT
-figure;
-plot(frequencies, Frequenz_fft - Frequenz_fft(idx_66hz));
-xlabel('Frequency (Hz)');
-ylabel('Difference in amplitude');
-title('Difference between 66 Hz and internal rotation signal FFT');
-grid on;
-
-% Save the plot as a PNG file
-print('-dpng', 'Aufgabe.png');
+% Mark 60Hz in the FFT plot
+hold on;
+plot([60 60], ylim, 'r--');
+hold off;
