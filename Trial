@@ -19,6 +19,9 @@ Frequenz_fft(2:end-1) = 2 * Frequenz_fft(2:end-1); % Take the magnitude and cons
 % Define frequencies corresponding to FFT bins
 frequencies = Fs * (0:(N/2)) / N; 
 
+% Set the threshold for peak detection
+threshold = 0.1 * max(Frequenz_fft); % Adjust the threshold as needed
+
 % Identify peaks (harmonics) in the frequency domain
 [peaks, peak_indices] = findpeaks(Frequenz_fft, 'MinPeakHeight', threshold);
 
