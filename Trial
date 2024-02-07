@@ -13,12 +13,13 @@ Zeit = frq_el_intern(time_range_indices, 2);
 % Perform FFT
 Fs = 1 / (Zeit(2) - Zeit(1)); % Sampling frequency in Hz
 N = length(Frequenz); % Length of the signal
-Frequenz_fft = abs(fft(Frequenz)); % Compute FFT
-Frequenz_fft = Frequenz_fft(1:N/2+1); % Consider only the positive frequencies
-Frequenz_fft(2:end-1) = 2 * Frequenz_fft(2:end-1); % Take the magnitude and consider symmetry
+Frequenz_fft = fft(Frequenz); % Compute FFT
+
+% Calculate the magnitude of the FFT signal (including both positive and negative frequencies)
+Frequenz_fft_mag = abs(Frequenz_fft) / N; % Normalize by the number of samples
 
 % Define frequencies corresponding to FFT bins
-frequencies = Fs * (0:(N/2)) / N; 
+frequencies = Fs * (-N/2:N/2-1) / N;
 
 % Set the frequency window of interest
 min_freq = 0;  % Minimum frequency to display
@@ -29,8 +30,8 @@ idx_min = find(frequencies >= min_freq, 1, 'first');
 idx_max = find(frequencies <= max_freq, 1, 'last');
 
 % Perform harmonic analysis
-threshold = 0.1 * max(Frequenz_fft); % Adjust the threshold as needed
-[peaks, peak_indices] = findpeaks(Frequenz_fft(idx_min:idx_max), 'MinPeakHeight', threshold);
+threshold = 0.1 * max(Frequenz_fft_mag); % Adjust the threshold as needed
+[peaks, peak_indices] = findpeaks(Frequenz_fft_mag(idx_min:idx_max), 'MinPeakHeight', threshold);
 harmonic_frequencies = frequencies(idx_min+peak_indices-1);
 harmonic_magnitudes = peaks;
 
@@ -53,10 +54,10 @@ grid on;
 
 % Plot the frequency spectrum
 subplot(4, 1, 3);
-plot(frequencies, Frequenz_fft);
+plot(frequencies, Frequenz_fft_mag);
 xlabel('Frequency (Hz)');
-ylabel('Amplitude');
-title('FFT of Signal');
+ylabel('Magnitude');
+title('Magnitude of FFT Signal');
 grid on;
 
 % Highlight identified harmonic peaks
