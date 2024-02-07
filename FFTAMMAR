@@ -52,16 +52,21 @@ grid on;
 
 % Harmonic analysis plot
 subplot(3,1,3);
-bar(modes, amp_modes, 0.5, 'r');
+stem(modes, amp_modes, 'Marker', 'o', 'LineWidth', 1.5);
 title('Harmonic Analysis of Rotor Speed');
 xlabel('Harmonic Mode');
 ylabel('Amplitude');
 xlim([0.5 4.5]);
 grid on;
 
-% Change axis ticks for harmonic analysis plot
-xticks(modes);
-xticklabels({'1x', '2x', '3x', '4x'});
+% Change marker style and color for each harmonic mode
+markers = {'o', 's', 'd', '^'};
+colors = {'g', 'm', 'c', 'k'};
+for i = 1:length(modes)
+    hold on;
+    stem(modes(i), amp_modes(i), 'Marker', markers{i}, 'Color', colors{i}, 'LineWidth', 1.5);
+    hold off;
+end
 
-% Adjust subplot spacing
-sgtitle('Rotor Speed Analysis', 'FontWeight', 'bold'); % Add title for the entire figure
+% Set legend for harmonic analysis plot
+legend({'1x', '2x', '3x', '4x'}, 'Location', 'best');
