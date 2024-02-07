@@ -8,6 +8,7 @@ end_time = 86.616;   % End time in seconds
 % Extract data within the specified time range
 time_range_indices = frq_el_intern(:,2) >= start_time & frq_el_intern(:,2) <= end_time;
 Frequenz = frq_el_intern(time_range_indices, 1);
+Zeit = frq_el_intern(time_range_indices, 2); % Extract time data
 
 % Specify the pulses per revolution
 pulses_per_revolution = 4;
@@ -55,14 +56,11 @@ ylabel('Magnitude (dB)');
 title('Squish Plot of Frequency Spectrum of Rotor Speed (RPM)');
 grid on;
 
-% Plot the squish plot for the harmonic analysis results
-figure;
-stem(harmonic_frequencies, 10*log10(harmonic_magnitudes), 'r', 'Marker', 'none');
-xlabel('Frequency (RPM)');
-ylabel('Magnitude (dB)');
-title('Squish Plot of Harmonic Analysis of Rotor Speed (RPM)');
-grid on;
+% Plot the time window used for calculating the FFT
+hold on;
+line([1 1] * start_time, ylim, 'Color', 'red', 'LineStyle', '--');
+line([1 1] * end_time, ylim, 'Color', 'red', 'LineStyle', '--');
+hold off;
 
-% Save the plots as PNG files
+% Save the plot as PNG file
 print('-dpng', 'Squish_Plot_Frequency_Spectrum_Rotor_Speed.png');
-print('-dpng', 'Squish_Plot_Harmonic_Analysis_Rotor_Speed.png');
