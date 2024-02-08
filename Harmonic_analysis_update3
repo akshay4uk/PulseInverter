@@ -1,16 +1,14 @@
 % Load data from Messdaten.mat
 load('Messdaten.mat');
 % Define the time range of interest
-
-
 start_time = 86.566; % Start time in seconds
 end_time = 86.616;   % End time in seconds
 % Extract data within the specified time range
 time_range_indices = find(frq_el_intern(:,2) >= start_time & frq_el_intern(:,2) <= end_time);
 Frequenz = frq_el_intern(time_range_indices, 1);
 Zeit = frq_el_intern(time_range_indices, 2);
-% Perform FFT
 
+% Perform FFT
 Fs = 1 / (Zeit(2) - Zeit(1)); % Sampling frequency in Hz
 N = length(Frequenz); % Length of the signal
 Frequenz_fft = fft(Frequenz); % Compute FFT
@@ -19,9 +17,9 @@ Frequenz_fft_mag = abs(Frequenz_fft) / N; % Normalize by the number of samples
 % Define frequencies corresponding to FFT bins
 frequencies = Fs * (-N/2:N/2-1) / N;
 % Set the fundamental frequency
-fundamental_frequency =1; % Hz
+fundamental_frequency = 1; % Hz
 % Calculate harmonic frequencies
-num_harmonics = 10 %7 Number of harmonics to analyze
+num_harmonics = 10; % Number of harmonics to analyze
 harmonic_frequencies = fundamental_frequency * (1:num_harmonics); % Exclude mode 0
 % Find indices corresponding to the harmonic frequencies
 harmonic_indices = zeros(1, length(harmonic_frequencies));
@@ -31,12 +29,15 @@ end
 % Perform harmonic analysis
 harmonic_magnitudes = Frequenz_fft_mag(harmonic_indices);
 
+% Convert magnitude to dB
+harmonic_magnitudes_db = 20*log10(harmonic_magnitudes);
+
 % Display harmonic analysis results
 disp('Harmonic Analysis Results:');
 disp('--------------------------');
-disp('Harmonic   Frequency (Hz)   Magnitude');
+disp('Harmonic   Frequency (Hz)   Magnitude (dB)');
 for i = 1:length(harmonic_frequencies)
-    disp([sprintf('   %d\t\t   %.2f\t\t  %.4f', i, harmonic_frequencies(i), harmonic_magnitudes(i))]);
+    disp([sprintf('   %d\t\t   %.2f\t\t  %.4f', i, harmonic_frequencies(i), harmonic_magnitudes_db(i))]);
 end
 
 % Plot the frequency spectrum
@@ -44,28 +45,54 @@ end
 figure;
 plot(frequencies, Frequenz_fft_mag);
 hold on;
-
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
-title('Frequency Spectrum with Harmonic Peaks');
+title('Frequency Spectrum with Harmonic Peaks (FFT)');
 legend('FFT', 'Harmonics');
 grid on;
 
-% Plot spectral density
+% Perform FFT with Hanning window
+window = hann(N); % Hanning window
+Frequenz_fft_hann = fft(Frequenz .* window'); % Apply window and compute FFT
+Frequenz_fft_mag_hann = abs(Frequenz_fft_hann) / N; % Normalize by the number of samples
+% Define frequencies corresponding to FFT bins
+frequencies_hann = Fs * (0:N/2-1) / N; % Frequencies for positive side of FFT
+
+% Plot FFT with Hanning window
+figure;
+plot(frequencies_hann, 2*Frequenz_fft_mag_hann(1:N/2));
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+title('Frequency Spectrum with Hanning Window');
+grid on;
+
+% Plot harmonic analysis results with Hanning window
+figure;
+bar(harmonic_frequencies, harmonic_magnitudes_db);
+xlabel('Harmonic Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('Harmonic Analysis Results with Hanning Window');
+grid on;
+
+% Plot Power Density Spectrum (Periodogram)
 figure;
 [p, f] = periodogram(Frequenz, [], N, Fs, 'power');
 plot(f, p);
 xlabel('Frequency (Hz)');
 ylabel('Power/Frequency (dB/Hz)');
-title('Spectral Density');
+title('Power Density Spectrum');
 grid on;
 
-% Save the plot as a PNG file
-print('-dpng', 'Frequency_Spectrum_Harmonic_Analysis.png');
-% Plot harmonic analysis results
+% Noise Analysis for Different Harmonics
 figure;
-bar(harmonic_frequencies, harmonic_magnitudes);
-xlabel('Harmonic Frequency (Hz)');
-ylabel('Magnitude');
-title('Harmonic Analysis Results');
+for i = 1:length(harmonic_frequencies)
+    [~, harmonic_index] = min(abs(f - harmonic_frequencies(i)));
+    [pxx, f] = periodogram(Frequenz_fft_mag(harmonic_index), [], N, Fs);
+    plot(f, 10*log10(pxx));
+    hold on;
+end
+xlabel('Frequency (Hz)');
+ylabel('Power/Frequency (dB/Hz)');
+title('Noise Analysis for Different Harmonics');
+legend(cellstr(num2str(harmonic_frequencies', 'Harmonic %d')));
 grid on;
