@@ -11,10 +11,10 @@ Zeit = frq_el_intern(time_range_indices, 2);
 Fs = 1 / (Zeit(2) - Zeit(1)); % Sampling frequency in Hz
 N = length(Frequenz); % Length of the signal
 Frequenz_fft = fft(Frequenz); % Compute FFT
-% Calculate the magnitude of the FFT signal (including both positive and negative frequencies)
-Frequenz_fft_mag = abs(Frequenz_fft) / N; % Normalize by the number of samples
+% Calculate the magnitude of the FFT signal (only positive frequencies)
+Frequenz_fft_mag = abs(Frequenz_fft(1:N/2)) / N; % Normalize by the number of samples
 % Define frequencies corresponding to FFT bins
-frequencies = Fs * (-N/2:N/2-1) / N;
+frequencies = Fs * (0:N/2-1) / N; % Positive frequencies only
 % Set the fundamental frequency
 fundamental_frequency = 1; % Hz
 % Calculate harmonic frequencies
@@ -40,11 +40,9 @@ end
 % Plot FFT
 figure;
 plot(frequencies, Frequenz_fft_mag);
-hold on;
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
-title('Frequency Spectrum with Harmonic Peaks');
-legend('FFT', 'Harmonics');
+title('Single-Sided Frequency Spectrum with Harmonic Peaks');
 grid on;
 
 % Plot spectral density
