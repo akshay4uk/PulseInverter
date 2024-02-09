@@ -1,25 +1,49 @@
-% Sample PWM signal parameters (replace these with your actual data)
-Fs = 1000;               % Sampling frequency (Hz)
-T = 1/Fs;                % Sampling period
-L = 1000;                % Length of signal
-t = (0:L-1)*T;           % Time vector
-carrier_freq = 50;       % Carrier frequency of PWM signal (Hz)
-duty_cycle = 0.5;        % Duty cycle of the PWM signal
-
-% Generate PWM signal
-pwm_signal = sin(2*pi*carrier_freq*t) < duty_cycle;
-
+% Load data from Messdaten.mat
+load('Messdaten.mat');
+% Define the time range of interest
+start_time = 86.566; % Start time in seconds
+end_time = 86.616;   % End time in seconds
+% Extract data within the specified time range
+time_range_indices = find(frq_el_intern(:,2) >= start_time & frq_el_intern(:,2) <= end_time);
+Frequenz = frq_el_intern(time_range_indices, 1);
+Zeit = frq_el_intern(time_range_indices, 2);
 % Perform FFT
-Y = fft(pwm_signal);
-P2 = abs(Y/L);
-P1 = P2(1:L/2+1);
-P1(2:end-1) = 2*P1(2:end-1);
-f = Fs*(0:(L/2))/L;
+Fs = 1 / (Zeit(2) - Zeit(1)); % Sampling frequency in Hz
+N = length(Frequenz); % Length of the signal
+Frequenz_fft = fft(Frequenz); % Compute FFT
+% Calculate the magnitude of the FFT signal (including both positive and negative frequencies)
+Frequenz_fft_mag = abs(Frequenz_fft) / N; % Normalize by the number of samples
+% Define frequencies corresponding to FFT bins
+frequencies = Fs * (0:N-1) / N; % Single-sided frequency range
+% Set the fundamental frequency
+fundamental_frequency = 1; % Hz
+% Calculate harmonic frequencies
+num_harmonics = 10; % Number of harmonics to analyze
+harmonic_frequencies = fundamental_frequency * (1:num_harmonics); % Exclude mode 0
+% Find indices corresponding to the harmonic frequencies
+harmonic_indices = zeros(1, length(harmonic_frequencies));
+for i = 1:length(harmonic_frequencies)
+    [~, harmonic_indices(i)] = min(abs(frequencies - harmonic_frequencies(i)));
+end
+% Perform harmonic analysis
+harmonic_magnitudes = Frequenz_fft_mag(harmonic_indices);
 
-% Plot single-sided amplitude spectrum
+% Display harmonic analysis results
+disp('Harmonic Analysis Results:');
+disp('--------------------------');
+disp('Harmonic   Frequency (Hz)   Magnitude');
+for i = 1:length(harmonic_frequencies)
+    disp([sprintf('   %d\t\t   %.2f\t\t  %.4f', i, harmonic_frequencies(i), harmonic_magnitudes(i))]);
+end
+
+% Plot the frequency spectrum
+% Plot FFT
 figure;
-plot(f,P1)
-title('Single-Sided Amplitude Spectrum of PWM Signal')
-xlabel('Frequency (Hz)')
-ylabel('Magnitude')
+stem(frequencies, Frequenz_fft_mag);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude');
+title('Single-Sided Amplitude Spectrum with Harmonic Peaks');
+hold on;
+stem(harmonic_frequencies, harmonic_magnitudes, 'r', 'LineWidth', 1.5);
+legend('FFT', 'Harmonics');
 grid on;
