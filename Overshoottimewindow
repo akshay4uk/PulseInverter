@@ -1,80 +1,25 @@
-% Load data from Messdaten.mat
-load('Messdaten.mat');
+% Sample PWM signal parameters (replace these with your actual data)
+Fs = 1000;               % Sampling frequency (Hz)
+T = 1/Fs;                % Sampling period
+L = 1000;                % Length of signal
+t = (0:L-1)*T;           % Time vector
+carrier_freq = 50;       % Carrier frequency of PWM signal (Hz)
+duty_cycle = 0.5;        % Duty cycle of the PWM signal
 
-% Extract data within the specified time window
-timeWindowStart = 254.84;
-timeWindowEnd = 254.86;
-
-% Find indices corresponding to the time window
-indices = find(frq_el_intern(:,2) >= timeWindowStart & frq_el_intern(:,2) <= timeWindowEnd);
-
-% Extract data within the time window
-timeWindowData = frq_el_intern(indices, :);
-
-% Plot external Drehzahlsignal
-figure(1);
-clf;
-set(gcf, 'Color', [1 1 1]);
-
-subplot(2,2,1)
-plot(n_mech_extern(:,2), n_mech_extern(:,1))
-xlabel('Zeit in s')
-ylabel('Drehzahl in rpm')
-title('externes Drehzahlsignal')
-ylim([0 16500])
-
-% Plot PWR-internes Rotorfrequenzsignal within the specified time window
-subplot(2,2,2)
-plot(timeWindowData(:,2), timeWindowData(:,1))
-title('PWR-internes Rotorfrequenzsignal (Time Window: 254.84s - 254.86s)')
-xlabel('Zeit in s')
-ylabel('elektrische Rotorfrequenz in Hz')
-ylim([0 1100])
-
-% Perform FFT on PWR-internes Rotorfrequenzsignal within the specified time window
-time = timeWindowData(:,2);
-frequency = timeWindowData(:,1);
+% Generate PWM signal
+pwm_signal = sin(2*pi*carrier_freq*t) < duty_cycle;
 
 % Perform FFT
-Fs = 1 / mean(diff(time)); % Sampling frequency (inverse of the average time difference)
-N = length(frequency); % Number of data points
-Y = fft(frequency, N); % FFT of the frequency data
+Y = fft(pwm_signal);
+P2 = abs(Y/L);
+P1 = P2(1:L/2+1);
+P1(2:end-1) = 2*P1(2:end-1);
+f = Fs*(0:(L/2))/L;
 
-% Compute the frequency axis
-frequencies = (0:N-1) * Fs / N;
-
-% Plot the FFT result
-subplot(2,2,3);
-plot(frequencies, abs(Y));
-title('FFT of PWR-internes Rotorfrequenzsignal (Time Window: 254.84s - 254.86s)');
-xlabel('Frequency (Hz)');
-ylabel('Amplitude');
-
-% Save the time, frequency, and FFT result in a variable
-result.time = time;
-result.frequency = frequency;
-result.fftFrequencies = frequencies;
-result.fftAmplitude = abs(Y);
-
-% Save the variable to a mat file
-save('fft_result.mat', 'result');
-
-% Plot the extracted frequency with respect to time
-subplot(2,2,4);
-plot(result.time, result.frequency);
-title('Extracted Frequency over Time');
-xlabel('Time (s)');
-ylabel('Frequency (Hz)');
-
-% Perform FFT on the extracted frequency
-extractedFrequency = result.frequency;
-N_extracted = length(extractedFrequency);
-Y_extracted = fft(extractedFrequency, N_extracted);
-frequencies_extracted = (0:N_extracted-1) * Fs / N_extracted;
-
-% Plot the FFT result of the extracted frequency
+% Plot single-sided amplitude spectrum
 figure;
-plot(frequencies_extracted, abs(Y_extracted));
-title('FFT of Extracted Frequency');
-xlabel('Frequency (Hz)');
-ylabel('Amplitude');
+plot(f,P1)
+title('Single-Sided Amplitude Spectrum of PWM Signal')
+xlabel('Frequency (Hz)')
+ylabel('Magnitude')
+grid on;
