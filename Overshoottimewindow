@@ -14,7 +14,7 @@ Frequenz_fft = fft(Frequenz); % Compute FFT
 % Calculate the magnitude of the FFT signal (including both positive and negative frequencies)
 Frequenz_fft_mag = abs(Frequenz_fft) / N; % Normalize by the number of samples
 % Define frequencies corresponding to FFT bins
-frequencies = Fs * (0:N-1) / N; % Single-sided frequency range
+frequencies = Fs * (-N/2:N/2-1) / N;
 % Set the fundamental frequency
 fundamental_frequency = 1; % Hz
 % Calculate harmonic frequencies
@@ -39,11 +39,30 @@ end
 % Plot the frequency spectrum
 % Plot FFT
 figure;
-stem(frequencies, Frequenz_fft_mag);
+plot(frequencies, Frequenz_fft_mag);
+hold on;
 xlabel('Frequency (Hz)');
 ylabel('Magnitude');
-title('Single-Sided Amplitude Spectrum with Harmonic Peaks');
-hold on;
-stem(harmonic_frequencies, harmonic_magnitudes, 'r', 'LineWidth', 1.5);
+title('Frequency Spectrum with Harmonic Peaks');
 legend('FFT', 'Harmonics');
+grid on;
+
+% Plot spectral density
+figure;
+[p, f] = periodogram(Frequenz, [], N, Fs, 'power');
+plot(f, p);
+xlabel('Frequency (Hz)');
+ylabel('Power/Frequency (dB/Hz)');
+title('Spectral Density');
+grid on;
+
+% Save the plot as a PNG file
+print('-dpng', 'Frequency_Spectrum_Harmonic_Analysis.png');
+
+% Plot harmonic analysis results using a normal plot
+figure;
+plot(harmonic_frequencies, harmonic_magnitudes, 'o-');
+xlabel('Harmonic Frequency (Hz)');
+ylabel('Magnitude');
+title('Harmonic Analysis Results');
 grid on;
