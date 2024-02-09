@@ -59,10 +59,18 @@ grid on;
 % Save the plot as a PNG file
 print('-dpng', 'Frequency_Spectrum_Harmonic_Analysis.png');
 
-% Plot harmonic analysis results using a normal plot
+% Plot harmonic analysis results
 figure;
 plot(harmonic_frequencies, harmonic_magnitudes, 'o-');
 xlabel('Harmonic Frequency (Hz)');
 ylabel('Magnitude');
 title('Harmonic Analysis Results');
+grid on;
+
+% Plot frequency versus time
+figure;
+plot(Zeit, Frequenz);
+xlabel('Time (s)');
+ylabel('Frequency (Hz)');
+title('Frequency vs Time');
 grid on;
