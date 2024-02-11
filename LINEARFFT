@@ -5,10 +5,17 @@ L = 1000;               % Length of signal
 t = (0:L-1)*T;          % Time vector
 
 % Generate a linearly increasing signal
-x = t;
+linear_signal = t;
+
+% Generate a harmonic oscillation signal
+f_harmonic = 50;        % Frequency of the harmonic oscillation (Hz)
+harmonic_signal = sin(2*pi*f_harmonic*t);
+
+% Combine both signals
+combined_signal = linear_signal + harmonic_signal;
 
 % Take the FFT
-Y = fft(x);
+Y = fft(combined_signal);
 
 % Compute the frequency domain
 f = Fs*(0:(L/2))/L;
@@ -16,6 +23,6 @@ f = Fs*(0:(L/2))/L;
 % Plot the single-sided amplitude spectrum
 figure;
 plot(f, 2*abs(Y(1:L/2+1)));
-title('Single-Sided Amplitude Spectrum of Linearly Increasing Signal');
+title('Single-Sided Amplitude Spectrum of Combined Signal');
 xlabel('Frequency (Hz)');
 ylabel('|Y(f)|');
