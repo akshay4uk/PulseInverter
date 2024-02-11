@@ -1,87 +1,95 @@
 clc;
 clear all;
- 
+
 load('Messdaten.mat');
- 
+
+% First Case
 r_mean = 995.213;
 f_r = round(mean(frq_el_intern(880000:890000,1)));
 start_index = find(frq_el_intern(:,1)*60/4>=r_mean & frq_el_intern(:,2)>=frq_el_intern(880000,2),1,'first');
-%start_index = find(frq_el_intern(:,1)*60/4>=r_mean & frq_el_intern(:,2)>=86.8505,1,'first');
 end_index = find(frq_el_intern(:,1)*60/4>=r_mean & frq_el_intern(:,2)>=frq_el_intern(880000+20*f_r,2),1,'first')-1;
-%end_index = find(frq_el_intern(:,1)*60/4<=r_mean & frq_el_intern(:,2)<=102.2910,1,'last');
- 
-t_start = frq_el_intern(start_index,2)
-t_end = frq_el_intern(end_index,2)
- 
+
+t_start = frq_el_intern(start_index,2);
+t_end = frq_el_intern(end_index,2);
+
 figure(1);clf;
 set(gcf,'Color',[1 1 1])
 plot(frq_el_intern(start_index:end_index,2),frq_el_intern(start_index:end_index,1).*60/4)
 title('PWR-internes Drehzahlsignal')
 xlabel('Zeit in s')
 ylabel('Drehzahl in rpm')
-%xlim([t_start t_end])
-%ylim([990 1000])
- 
+
 t = frq_el_intern(start_index:end_index,2)-frq_el_intern(start_index,2);
 Xn = frq_el_intern(start_index:end_index,1)*60/4;
- 
- 
+
 dt = mean(diff(frq_el_intern(start_index:end_index,2)));
 Fs = 1/dt;
- 
+
 T = 0.015;
 f_0 = 1/T;
 number = round(Fs/f_0);
 Yn = fft(Xn,number)./(number/2);
- 
+
 N = 0:length(Yn)-1;
 freq = Fs*N/length(Yn)/f_0;
- 
+
 figure(2)
 bar(round(freq(2:end)),abs(Yn(2:end)))
 title("Obschwingungsanalyse")
 xlabel("k = f_n/f_0")
 ylabel("Drehzahl in rpm")
 xlim([0 75])
- 
+
 figure(3)
 bar(round(freq(2:end)),abs(Yn(2:end)./Yn(2)*100))
 title("Obschwingungsanalyse")
 xlabel("k = f_n/f_0")
 ylabel("Amplitude/A_0 [%]")
-xlim([0 75])--------------
+xlim([0 75])
 
-load('Messdaten.mat');
-figure(1);clf;
-set(gcf,'Color',[1 1 1])
-% Erste Plateau
-Frequenz=frq_el_intern(759453:863126,1); 
-Zeit= frq_el_intern(759453:863126,2);
-internes_Drehzahlsignal=Frequenz*60/4;
-plot(Zeit,internes_Drehzahlsignal)
-%plot(Zeit,Frequenz)
-title('internes Drehzahgsignal:Erste Steigung ')
-xlabel('Zeit in s')
-%xlim([86.566 86.616])
-ylabel('internes Drehzahlgsignal in 1/min')
-figure(2);clf;
-set(gcf,'Color',[1 1 1])
-Frequenz=frq_el_intern(759453:764941,1); 
-Zeit= frq_el_intern(759453:764941,2);
-internes_Drehzahlsignal=Frequenz*60/4;
-plot(Zeit,internes_Drehzahlsignal)
-%plot(Zeit,Frequenz)
-title('internes Drehzahlgsignal:konstante Steigung')
-xlabel('Zeit in s')
-%xlim([86.566 86.616])
-ylabel('internes Drehzahgsignal in 1/min')
-ylim([0 16000])
-figure(3);clf;
-set(gcf,'Color',[1 1 1])
-Frequenz=frq_el_intern(764941:863126,1); 
-Zeit= frq_el_intern(764941:863126,2);
-internes_Drehzahlsignal=Frequenz*60/4;
-plot(Zeit,internes_Drehzahlsignal)
-%plot(Zeit,Frequenz)
-title('internes Drehzahlgsignal:nicht konstante Steigung')
-xlabel('Zeit in s')
+% Second Case
+Frequenz = frq_el_intern(759453:863126,1);
+Zeit = frq_el_intern(759453:863126,2);
+
+r_mean = 995.213; % Assuming this mean value is still valid for the second case
+f_r = round(mean(Frequenz(10000:20000))); % Assuming similar frequency range for calculation
+start_index = find(Frequenz*60/4 >= r_mean & Zeit >= Zeit(1), 1, 'first');
+end_index = find(Frequenz*60/4 >= r_mean & Zeit >= (Zeit(1) + 20/f_r), 1, 'first') - 1;
+
+t_start = Zeit(start_index);
+t_end = Zeit(end_index);
+
+figure(4); clf;
+set(gcf, 'Color', [1 1 1]);
+plot(Zeit(start_index:end_index), Frequenz(start_index:end_index).*60/4);
+title('PWR-internes Drehzahlsignal - Second Case');
+xlabel('Zeit in s');
+ylabel('Drehzahl in rpm');
+
+t = Zeit(start_index:end_index) - Zeit(start_index);
+Xn = Frequenz(start_index:end_index)*60/4;
+
+dt = mean(diff(Zeit(start_index:end_index)));
+Fs = 1/dt;
+
+T = 0.015;
+f_0 = 1/T;
+number = round(Fs/f_0);
+Yn = fft(Xn, number)./(number/2);
+
+N = 0:length(Yn)-1;
+freq = Fs*N/length(Yn)/f_0;
+
+figure(5)
+bar(round(freq(2:end)), abs(Yn(2:end)))
+title("Obschwingungsanalyse - Second Case")
+xlabel("k = f_n/f_0")
+ylabel("Drehzahl in rpm")
+xlim([0 75])
+
+figure(6)
+bar(round(freq(2:end)), abs(Yn(2:end)./Yn(2)*100))
+title("Obschwingungsanalyse - Second Case")
+xlabel("k = f_n/f_0")
+ylabel("Amplitude/A_0 [%]")
+xlim([0 75])
