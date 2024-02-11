@@ -15,7 +15,7 @@ t_end = frq_el_intern(end_index,2);
 figure(1);clf;
 set(gcf,'Color',[1 1 1])
 plot(frq_el_intern(start_index:end_index,2),frq_el_intern(start_index:end_index,1).*60/4)
-title('PWR-internes Drehzahlsignal')
+title('PWR-internes Drehzahlsignal - First Case')
 xlabel('Zeit in s')
 ylabel('Drehzahl in rpm')
 
@@ -35,14 +35,14 @@ freq = Fs*N/length(Yn)/f_0;
 
 figure(2)
 bar(round(freq(2:end)),abs(Yn(2:end)))
-title("Obschwingungsanalyse")
+title("Obschwingungsanalyse - First Case")
 xlabel("k = f_n/f_0")
 ylabel("Drehzahl in rpm")
 xlim([0 75])
 
 figure(3)
 bar(round(freq(2:end)),abs(Yn(2:end)./Yn(2)*100))
-title("Obschwingungsanalyse")
+title("Obschwingungsanalyse - First Case")
 xlabel("k = f_n/f_0")
 ylabel("Amplitude/A_0 [%]")
 xlim([0 75])
