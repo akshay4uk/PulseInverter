@@ -20,8 +20,17 @@ Y = fft(combined_signal);
 % Compute the frequency domain
 f = Fs*(0:(L/2))/L;
 
-% Plot the single-sided amplitude spectrum
+% Plot the original signal and the combined signal
 figure;
+subplot(2,1,1);
+plot(t, linear_signal, t, combined_signal);
+title('Original Signal and Combined Signal');
+xlabel('Time (s)');
+ylabel('Amplitude');
+legend('Original Signal', 'Combined Signal');
+
+% Plot the single-sided amplitude spectrum
+subplot(2,1,2);
 plot(f, 2*abs(Y(1:L/2+1)));
 title('Single-Sided Amplitude Spectrum of Combined Signal');
 xlabel('Frequency (Hz)');
