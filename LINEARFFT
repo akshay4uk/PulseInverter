@@ -1,37 +1,56 @@
 % Parameters
-Fs = 1000;              % Sampling frequency (Hz)
+Fs = 10000;             % Sampling frequency (Hz)
 T = 1/Fs;               % Sampling period (s)
 L = 1000;               % Length of signal
 t = (0:L-1)*T;          % Time vector
+carrier_freq = 50;      % Carrier frequency (Hz)
+mod_index = 0.8;        % Modulation index
+overshoot_factor = 1.2; % Overshoot factor
+linear_increase_slope = 0.01; % Slope for linear increase
 
-% Generate a linearly increasing signal
-linear_signal = t;
+% Generate carrier waveform
+carrier = sin(2*pi*carrier_freq*t);
 
-% Generate a harmonic oscillation signal
-f_harmonic = 50;        % Frequency of the harmonic oscillation (Hz)
-harmonic_signal = sin(2*pi*f_harmonic*t);
+% Generate modulating waveforms for each phase
+mod_phase_A = square(2*pi*carrier_freq*t, mod_index);
+mod_phase_B = square(2*pi*carrier_freq*t - 2*pi/3, mod_index);
+mod_phase_C = square(2*pi*carrier_freq*t + 2*pi/3, mod_index);
 
-% Combine both signals
-combined_signal = linear_signal + harmonic_signal;
+% Combine modulating waveforms with the carrier to create PWM signals
+pwm_phase_A = carrier .* mod_phase_A;
+pwm_phase_B = carrier .* mod_phase_B;
+pwm_phase_C = carrier .* mod_phase_C;
 
-% Take the FFT
-Y = fft(combined_signal);
+% Convert PWM signals from AC to DC with overshoot and linear increase
+dc_signal_A = overshoot_factor * pwm_phase_A + linear_increase_slope * t;
+dc_signal_B = overshoot_factor * pwm_phase_B + linear_increase_slope * t;
+dc_signal_C = overshoot_factor * pwm_phase_C + linear_increase_slope * t;
+
+% Perform FFT on the DC signals
+fft_dc_A = fft(dc_signal_A);
+fft_dc_B = fft(dc_signal_B);
+fft_dc_C = fft(dc_signal_C);
 
 % Compute the frequency domain
-f = Fs*(0:(L/2))/L;
+N = length(dc_signal_A);
+f = Fs*(0:(N/2))/N;
 
-% Plot the original signal and the combined signal
+% Plot the single-sided amplitude spectrum for each DC signal
 figure;
-subplot(2,1,1);
-plot(t, linear_signal, t, combined_signal);
-title('Original Signal and Combined Signal');
-xlabel('Time (s)');
-ylabel('Amplitude');
-legend('Original Signal', 'Combined Signal');
+subplot(3,1,1);
+plot(f, 2*abs(fft_dc_A(1:N/2+1)));
+title('Single-Sided Amplitude Spectrum - Phase A');
+xlabel('Frequency (Hz)');
+ylabel('|Y(f)|');
 
-% Plot the single-sided amplitude spectrum
-subplot(2,1,2);
-plot(f, 2*abs(Y(1:L/2+1)));
-title('Single-Sided Amplitude Spectrum of Combined Signal');
+subplot(3,1,2);
+plot(f, 2*abs(fft_dc_B(1:N/2+1)));
+title('Single-Sided Amplitude Spectrum - Phase B');
+xlabel('Frequency (Hz)');
+ylabel('|Y(f)|');
+
+subplot(3,1,3);
+plot(f, 2*abs(fft_dc_C(1:N/2+1)));
+title('Single-Sided Amplitude Spectrum - Phase C');
 xlabel('Frequency (Hz)');
 ylabel('|Y(f)|');
