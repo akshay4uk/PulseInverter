@@ -31,26 +31,69 @@ fft_dc_A = fft(dc_signal_A);
 fft_dc_B = fft(dc_signal_B);
 fft_dc_C = fft(dc_signal_C);
 
+% Perform FFT on the AC signals
+fft_ac_A = fft(pwm_phase_A);
+fft_ac_B = fft(pwm_phase_B);
+fft_ac_C = fft(pwm_phase_C);
+
 % Compute the frequency domain
 N = length(dc_signal_A);
 f = Fs*(0:(N/2))/N;
 
-% Plot the single-sided amplitude spectrum for each DC signal
+% Plot the single-sided amplitude spectrum for each phase
 figure;
-subplot(3,1,1);
-plot(f, 2*abs(fft_dc_A(1:N/2+1)));
+subplot(3,2,1);
+plot(t, pwm_phase_A);
+title('AC Signal - Phase A');
+xlabel('Time (s)');
+ylabel('Amplitude');
+
+subplot(3,2,2);
+plot(f, 2*abs(fft_ac_A(1:N/2+1)));
 title('Single-Sided Amplitude Spectrum - Phase A');
 xlabel('Frequency (Hz)');
 ylabel('|Y(f)|');
 
-subplot(3,1,2);
-plot(f, 2*abs(fft_dc_B(1:N/2+1)));
+subplot(3,2,3);
+plot(t, pwm_phase_B);
+title('AC Signal - Phase B');
+xlabel('Time (s)');
+ylabel('Amplitude');
+
+subplot(3,2,4);
+plot(f, 2*abs(fft_ac_B(1:N/2+1)));
 title('Single-Sided Amplitude Spectrum - Phase B');
 xlabel('Frequency (Hz)');
 ylabel('|Y(f)|');
 
-subplot(3,1,3);
-plot(f, 2*abs(fft_dc_C(1:N/2+1)));
+subplot(3,2,5);
+plot(t, pwm_phase_C);
+title('AC Signal - Phase C');
+xlabel('Time (s)');
+ylabel('Amplitude');
+
+subplot(3,2,6);
+plot(f, 2*abs(fft_ac_C(1:N/2+1)));
 title('Single-Sided Amplitude Spectrum - Phase C');
 xlabel('Frequency (Hz)');
 ylabel('|Y(f)|');
+
+% Plot the DC signals
+figure;
+subplot(3,1,1);
+plot(t, dc_signal_A);
+title('DC Signal - Phase A');
+xlabel('Time (s)');
+ylabel('Amplitude');
+
+subplot(3,1,2);
+plot(t, dc_signal_B);
+title('DC Signal - Phase B');
+xlabel('Time (s)');
+ylabel('Amplitude');
+
+subplot(3,1,3);
+plot(t, dc_signal_C);
+title('DC Signal - Phase C');
+xlabel('Time (s)');
+ylabel('Amplitude');
