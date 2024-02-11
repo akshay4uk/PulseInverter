@@ -1,0 +1,21 @@
+% Parameters
+Fs = 1000;              % Sampling frequency (Hz)
+T = 1/Fs;               % Sampling period (s)
+L = 1000;               % Length of signal
+t = (0:L-1)*T;          % Time vector
+
+% Generate a linearly increasing signal
+x = t;
+
+% Take the FFT
+Y = fft(x);
+
+% Compute the frequency domain
+f = Fs*(0:(L/2))/L;
+
+% Plot the single-sided amplitude spectrum
+figure;
+plot(f, 2*abs(Y(1:L/2+1)));
+title('Single-Sided Amplitude Spectrum of Linearly Increasing Signal');
+xlabel('Frequency (Hz)');
+ylabel('|Y(f)|');
