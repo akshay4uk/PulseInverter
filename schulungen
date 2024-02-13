@@ -1,0 +1,17 @@
+% Define RPM data over time
+time = [0:0.1:24.9]; % Time in seconds
+RPM = [3000*ones(1,100), 4000*ones(1,100), 5000*ones(1,50)]; % RPM values
+
+% Perform Fast Fourier Transform (FFT)
+RPM_fft = abs(fft(RPM));
+
+% Compute frequency axis
+N = length(RPM);
+fs = 1/(time(2)-time(1)); % Sampling frequency
+frequencies = (0:N-1)*fs/N;
+
+% Plot FFT spectrum
+plot(frequencies, RPM_fft);
+xlabel('Frequency (Hz)');
+ylabel('Amplitude');
+title('Frequency Spectrum of RPM Signal');
