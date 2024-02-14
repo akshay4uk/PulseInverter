@@ -1,0 +1,48 @@
+Aufgabe 1
+
+Solldaten 6000U/min und 300Nm
+
+PWR_Istmodus = Zustand des Pulswechselrichters
+
+Solldrehzahl = Drehzahl Vorgabe
+
+Sollmoment = Drehmoment Vorgabe
+
+PWR_UDC = Pulswechselrichter Gleichspannung
+
+PWR_IRMS = Pulswechselrichter Stromstärke
+
+a.) Was ist auffällig?
+
+Das Drehmoment PST, PWR und Vorgabe weichen stark voneinander ab.
+
+b.) Welche Gründe sind möglich für diese Abweichung?
+
+Der Motor kann bei 6000 U/min. das Drehmoment nicht erbringen.
+
+Die Kalibrierung vom HIL-Prüfstand könnte Abweichen
+
+Die Drehmomenten Erfassung ist fehlerhaft
+
+Es könnte ein Leistungskabel ein zu hohen Übergangswiderstand haben
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------
+
+
+
+Aufgabe 2
+
+IBN im Betriebsmodus Freilauf mit aktiver AC-Last
+
+a.) Was wurde in der Messung abgetestet?
+
+Innere Widerstände messen, um Verluste zu erkennen.
+
+b.) Gibt es Auffälligkeiten in der Messung?
+
+Um dies zu beurteilen, benötigt man Min. und Max. Werte der Messdaten.
+
+Für mich sind keine Auffälligkeiten zu sehen.
