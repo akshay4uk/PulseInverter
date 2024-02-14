@@ -27,6 +27,16 @@ Die Drehmomenten Erfassung ist fehlerhaft
 Es könnte ein Leistungskabel ein zu hohen Übergangswiderstand haben
 
 
+deine Berechnung ist plausibel. Basierend auf den gegebenen elektrischen Parametern (Spannung und Strom) hast du die Leistung (P) berechnet, die sich auf 157,850655 kW beläuft.
+
+Anschließend hast du das maximale Drehmoment (M) des Motors berechnet, das unter optimalen Bedingungen 251,227 Nm beträgt.
+
+Wenn die Spezifikationen des Motors ein maximales Drehmoment von 300 Nm angeben, dann bedeutet das, dass der Motor tatsächlich unter idealen Bedingungen nur bis zu 251,227 Nm erreichen kann.
+
+Es ist wichtig zu beachten, dass die tatsächliche Drehmomentausgabe eines Motors von verschiedenen Faktoren abhängt, einschließlich der mechanischen Konstruktion des Motors, der Effizienz des Wandlungsprozesses von elektrischer in mechanische Energie, sowie anderen externen Einflüssen wie Temperatur und Belastung.
+
+In diesem Fall scheint die Berechnung korrekt zu sein und zeigt, dass der Motor möglicherweise nicht das spezifizierte Drehmoment von 300 Nm erreichen kann, sondern nur bis zu 251,227 Nm unter optimalen Bedingungen
+
 Yes, your calculation appears plausible. Based on the given electrical parameters (voltage and current), you have calculated the power (P), which amounts to 157.850655 kW.
 
 Then, you calculated the maximum torque (M) of the motor, which under optimal conditions is 251.227 Nm.
