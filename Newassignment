@@ -27,6 +27,16 @@ Die Drehmomenten Erfassung ist fehlerhaft
 Es könnte ein Leistungskabel ein zu hohen Übergangswiderstand haben
 
 
+Yes, your calculation appears plausible. Based on the given electrical parameters (voltage and current), you have calculated the power (P), which amounts to 157.850655 kW.
+
+Then, you calculated the maximum torque (M) of the motor, which under optimal conditions is 251.227 Nm.
+
+If the specifications of the motor indicate a maximum torque of 300 Nm, it means that the motor can actually reach up to 251.227 Nm under ideal conditions.
+
+It's important to note that the actual torque output of a motor depends on various factors, including the mechanical construction of the motor, the efficiency of the conversion process from electrical to mechanical energy, as well as other external influences such as temperature and load.
+
+In this case, the calculation seems correct and indicates that the motor may not be able to reach the specified torque of 300 Nm but only up to 251.227 Nm under optimal conditions.
+
 
 
 ------------------------------------------------------------------------------------------------------------------------------
