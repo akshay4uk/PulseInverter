@@ -46,3 +46,13 @@ b.) Gibt es Auffälligkeiten in der Messung?
 Um dies zu beurteilen, benötigt man Min. und Max. Werte der Messdaten.
 
 Für mich sind keine Auffälligkeiten zu sehen.
+P = U*I =364,7836*432,7241=157850,655 Watt = 157,850655 KW
+M=(P*60)/n/2*Pi= (157850,655W*60)/6000,4565U/min./2*Pi=251,227Nm max.
+
+
+Kann das so Plausibel sein?
+ 
+
+Das würde heißen der Motor kann unter optimalen Bedingungen nur 251,227 Nm machen
+
+Die 300 Nm sind Abstrakt
