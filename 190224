@@ -1,0 +1,32 @@
+% Example of Sinusoidal Pulse Width Modulation (SPWM) code for a power inverter
+
+% Parameters
+f_sw = 10e3; % switching frequency in Hz
+f_ref = 50; % reference frequency in Hz (for 50Hz sinusoidal output)
+V_dc = 400; % DC link voltage in volts
+V_ac_rms = 230; % desired RMS output voltage in volts
+V_ac_peak = sqrt(2) * V_ac_rms; % desired peak output voltage in volts
+
+% Calculate modulation index
+m = V_ac_peak / V_dc;
+
+% Time vector
+t = 0:1/(10*f_sw):1/f_ref; % time vector for one period of the reference frequency
+
+% Generate sinusoidal reference waveform
+V_ref = V_dc * m * sin(2*pi*f_ref*t);
+
+% Generate carrier waveform
+t_carrier = 0:1/f_sw:1/f_ref; % time vector for one period of the switching frequency
+carrier = square(2*pi*f_sw*t_carrier); % square wave carrier signal
+
+% Perform SPWM modulation
+duty_cycle = (V_ref + V_dc) / (2 * V_dc); % calculate duty cycle
+pwm_signal = duty_cycle .* carrier; % generate SPWM signal
+
+% Plot the SPWM waveform
+figure;
+plot(t_carrier, pwm_signal);
+xlabel('Time (s)');
+ylabel('PWM Signal');
+title('Sinusoidal Pulse Width Modulation (SPWM) Signal');
