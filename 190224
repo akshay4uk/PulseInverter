@@ -1,32 +1,103 @@
-% Example of Sinusoidal Pulse Width Modulation (SPWM) code for a power inverter
-
 % Parameters
-f_sw = 10e3; % switching frequency in Hz
-f_ref = 50; % reference frequency in Hz (for 50Hz sinusoidal output)
-V_dc = 400; % DC link voltage in volts
-V_ac_rms = 230; % desired RMS output voltage in volts
-V_ac_peak = sqrt(2) * V_ac_rms; % desired peak output voltage in volts
+V_nominal = 230; % Nominal voltage (V)
+f_nominal = 60; % Nominal frequency (Hz)
+P_nominal = 4; % Number of poles
+R_s = 0.5; % Stator resistance (ohm)
+L_s = 0.05; % Stator inductance (H)
+R_r = 0.6; % Rotor resistance referred to stator (ohm)
+L_r = 0.05; % Rotor inductance referred to stator (H)
+L_m = 0.1; % Magnetizing inductance (H)
+J = 0.1; % Moment of inertia (kg*m^2)
+B = 0.01; % Damping factor (N*m*s/rad)
+T_load = 1; % Load torque (N*m)
 
-% Calculate modulation index
-m = V_ac_peak / V_dc;
+% Initialize motor parameters
+motor_params = struct('V_nominal', V_nominal, 'f_nominal', f_nominal, ...
+    'P_nominal', P_nominal, 'R_s', R_s, 'L_s', L_s, 'R_r', R_r, 'L_r', L_r, ...
+    'L_m', L_m, 'J', J, 'B', B, 'T_load', T_load);
 
-% Time vector
-t = 0:1/(10*f_sw):1/f_ref; % time vector for one period of the reference frequency
+% Simulate motor model
+sim_time = 10; % Simulation time (s)
+[t, w, ia, ib, ic] = simulate_motor(motor_params, sim_time);
 
-% Generate sinusoidal reference waveform
-V_ref = V_dc * m * sin(2*pi*f_ref*t);
-
-% Generate carrier waveform
-t_carrier = 0:1/f_sw:1/f_ref; % time vector for one period of the switching frequency
-carrier = square(2*pi*f_sw*t_carrier); % square wave carrier signal
-
-% Perform SPWM modulation
-duty_cycle = (V_ref + V_dc) / (2 * V_dc); % calculate duty cycle
-pwm_signal = duty_cycle .* carrier; % generate SPWM signal
-
-% Plot the SPWM waveform
+% Plot results
 figure;
-plot(t_carrier, pwm_signal);
+subplot(2,1,1);
+plot(t, w);
 xlabel('Time (s)');
-ylabel('PWM Signal');
-title('Sinusoidal Pulse Width Modulation (SPWM) Signal');
+ylabel('Angular Velocity (rad/s)');
+title('Motor Speed vs. Time');
+
+subplot(2,1,2);
+plot(t, ia, 'r', t, ib, 'g', t, ic, 'b');
+xlabel('Time (s)');
+ylabel('Current (A)');
+title('Stator Current vs. Time');
+legend('Phase A', 'Phase B', 'Phase C');
+
+% Motor simulation function
+function [t, w, ia, ib, ic] = simulate_motor(params, sim_time)
+    % Extract parameters
+    V_nominal = params.V_nominal;
+    f_nominal = params.f_nominal;
+    P_nominal = params.P_nominal;
+    R_s = params.R_s;
+    L_s = params.L_s;
+    R_r = params.R_r;
+    L_r = params.L_r;
+    L_m = params.L_m;
+    J = params.J;
+    B = params.B;
+    T_load = params.T_load;
+    
+    % Define motor model
+    motor_eqns = @(t, x) motor_model(t, x, V_nominal, f_nominal, P_nominal, R_s, L_s, R_r, L_r, L_m, J, B, T_load);
+    
+    % Simulate motor
+    tspan = [0 sim_time];
+    x0 = [0 0 0]; % Initial conditions: [angular velocity (rad/s), ia, ib, ic (currents)]
+    options = odeset('RelTol', 1e-6, 'AbsTol', 1e-6);
+    [t, X] = ode45(motor_eqns, tspan, x0, options);
+    
+    % Extract results
+    w = X(:, 1);
+    ia = X(:, 2);
+    ib = X(:, 3);
+    ic = X(:, 4);
+end
+
+% Motor model equations
+function dxdt = motor_model(t, x, V_nominal, f_nominal, P_nominal, R_s, L_s, R_r, L_r, L_m, J, B, T_load)
+    w = x(1); % Angular velocity (rad/s)
+    ia = x(2); % Stator current phase A (A)
+    ib = x(3); % Stator current phase B (A)
+    ic = x(4); % Stator current phase C (A)
+    
+    % Calculate motor parameters
+    V = V_nominal; % Assuming constant voltage for simplicity
+    f = f_nominal; % Assuming constant frequency for simplicity
+    
+    % Calculate torque
+    Te = calculate_torque(w, ia, ib, ic, R_r, L_m);
+    
+    % Calculate acceleration
+    dwdt = (P_nominal / 2) * (Te - T_load - B*w) / J;
+    
+    % Calculate stator currents
+    didt = calculate_currents(ia, ib, ic, V, R_s, L_s, w, L_m);
+    
+    dxdt = [dwdt; didt];
+end
+
+% Calculate torque
+function Te = calculate_torque(w, ia, ib, ic, R_r, L_m)
+    Te = (3/2) * ((R_r * ia)^2 + (R_r * ib)^2 + (R_r * ic)^2) / L_m;
+end
+
+% Calculate stator currents
+function didt = calculate_currents(ia, ib, ic, V, R_s, L_s, w, L_m)
+    % Assuming balanced sinusoidal supply for simplicity
+    V_phase = V * sqrt(2) * cos(w*t); % Phase voltage
+    % Calculate stator currents using simplified equations
+    didt = (1/L_s) * (V_phase - R_s * (ia + ib + ic));
+end
