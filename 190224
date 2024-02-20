@@ -55,7 +55,7 @@ function [t, w, ia, ib, ic] = simulate_motor(params, sim_time)
     
     % Simulate motor
     tspan = [0 sim_time];
-    x0 = [0 0 0]; % Initial conditions: [angular velocity (rad/s), ia, ib, ic (currents)]
+    x0 = [0 0 0 0]; % Initial conditions: [angular velocity (rad/s), ia, ib, ic (currents)]
     options = odeset('RelTol', 1e-6, 'AbsTol', 1e-6);
     [t, X] = ode45(motor_eqns, tspan, x0, options);
     
@@ -97,7 +97,4 @@ end
 % Calculate stator currents
 function didt = calculate_currents(ia, ib, ic, V, R_s, L_s, w, L_m)
     % Assuming balanced sinusoidal supply for simplicity
-    V_phase = V * sqrt(2) * cos(w*t); % Phase voltage
-    % Calculate stator currents using simplified equations
-    didt = (1/L_s) * (V_phase - R_s * (ia + ib + ic));
-end
+    V_phase = V * sqrt(2) * cos(w*t); % Phase
